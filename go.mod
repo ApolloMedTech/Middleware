@@ -1,4 +1,4 @@
-module github/ApolloMedTech/Middleware
+module github.com/ApolloMedTech/Middleware
 
 go 1.21
 
