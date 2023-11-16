@@ -19,3 +19,21 @@
 
 # Go workspace file
 go.work
+
+#Idea files
+.idea
+
+### IntelliJ IDEA ###
+out/
+.idea/
+*.iml
+*.lck
+*.iws
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+*.log
