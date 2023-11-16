@@ -5,11 +5,11 @@ import (
 	"os"
 )
 
-// LoadConfig carrega a configuração do arquivo config.yaml
-func LoadConfig() (Config, error) {
+// LoadConfig loads the configuration from a specified YAML file path.
+func LoadConfig(filePath string) (Config, error) {
 	var config Config
 
-	yamlFile, err := os.ReadFile("config/config.yaml")
+	yamlFile, err := os.ReadFile(filePath)
 	if err != nil {
 		return config, err
 	}
