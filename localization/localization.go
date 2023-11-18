@@ -37,7 +37,7 @@ func LoadLocaleFiles(path string) error {
 
 	for _, f := range files {
 		if filepath.Ext(f.Name()) == ".json" {
-			logrus.Debug("Loading locale file: ", f.Name()
+			logrus.Debug("Loading locale file: ", f.Name())
 			fullPath := filepath.Join(path, f.Name())
 			bundle.MustLoadMessageFile(fullPath)
 		}
