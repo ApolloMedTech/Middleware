@@ -5,7 +5,9 @@ go 1.21
 require (
 	github.com/flosch/pongo2/v6 v6.0.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/nicksnyder/go-i18n/v2 v2.2.2
 	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/text v0.9.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -32,6 +34,5 @@ require (
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )

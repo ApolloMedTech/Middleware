@@ -2,12 +2,13 @@ package config
 
 // Config armazena as configurações do aplicativo.
 type Config struct {
-	Assets        AssetsConfig   `yaml:"assets"`
-	StaticConfig  StaticConfig   `yaml:"static_config"`
-	TemplatesPath string         `yaml:"templates_path"`
-	Database      DatabaseConfig `yaml:"database"`
-	ServerConfig  ServerConfig   `yaml:"server"`
-	LogConfig     LogConfig      `yaml:"log"`
+	Assets        AssetsConfig       `yaml:"assets"`
+	StaticConfig  StaticConfig       `yaml:"static_config"`
+	TemplatesPath string             `yaml:"templates_path"`
+	Database      DatabaseConfig     `yaml:"database"`
+	ServerConfig  ServerConfig       `yaml:"server"`
+	LogConfig     LogConfig          `yaml:"log"`
+	Localization  LocalizationConfig `yaml:"localization"`
 }
 
 // AssetsConfig armazena as configurações de ativos.
@@ -15,6 +16,10 @@ type AssetsConfig struct {
 	Img string `yaml:"images"`
 	CSS string `yaml:"css"`
 	JS  string `yaml:"js"`
+}
+
+type LocalizationConfig struct {
+	LocalesPath string `yaml:"locales_path"`
 }
 
 // StaticConfig armazena as configurações estáticas.
