@@ -86,7 +86,7 @@ func (manager *DBManager) Delete(query string, args ...interface{}) (int64, erro
 
 // Select executes a select query and returns the rows.
 func (manager *DBManager) Select(query string, args ...interface{}) (*sql.Rows, error) {
-	logrus.Errorf("Error executing select query '%s': %v", query, args...)
+	logrus.Errorf("Error executing select query '%s': %v", query, args)
 	rows, err := manager.DB.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error executing select query '%s': %v", query, err)
