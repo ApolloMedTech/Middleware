@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/flosch/pongo2/v6 v6.0.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/lib/pq v1.10.9
 	github.com/nicksnyder/go-i18n/v2 v2.2.2
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/text v0.9.0
