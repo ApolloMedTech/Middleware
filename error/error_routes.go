@@ -6,7 +6,8 @@ import (
 	"net/http"
 )
 
-func RegisterErrorRoutes(router *gin.Engine, cfg config.Config) {
+func RegisterErrorRoutes(router *gin.Engine) {
+	cfg := config.GetConfig().Templates
 	// Handle 404 Not Found
 	router.NoRoute(func(c *gin.Context) {
 		errorHandler(c, http.StatusNotFound, "Page not found", cfg)

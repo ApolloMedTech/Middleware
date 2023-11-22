@@ -14,13 +14,13 @@ import (
 
 var bundle *i18n.Bundle
 
-func InitLocalization(config config.Config) {
+func InitLocalization(config config.LocalizationConfig) {
 	// Initialize the Bundle with the default language.
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	// Load message files.
-	err := LoadLocaleFiles(config.Localization.LocalesPath)
+	err := LoadLocaleFiles(config.LocalesPath)
 	if err != nil {
 		logrus.Error("Error loading locale files: ", err)
 		return

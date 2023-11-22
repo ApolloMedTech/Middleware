@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func CustomErrorHandling(cfg config.Config) gin.HandlerFunc {
+func CustomErrorHandling(cfg config.TemplatesConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if r := recover(); r != nil {
@@ -30,7 +30,7 @@ func CustomErrorHandling(cfg config.Config) gin.HandlerFunc {
 	}
 }
 
-func errorHandler(c *gin.Context, statusCode int, message string, config config.Config) {
+func errorHandler(c *gin.Context, statusCode int, message string, config config.TemplatesConfig) {
 	// Set the status code and render the template
-	http_template.Render(c, config.TemplatesPath+"/error.html", pongo2.Context{"status": statusCode, "message": message})
+	http_template.Render(c, config.Path+"/error.html", pongo2.Context{"status": statusCode, "message": message})
 }

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/ApolloMedTech/Middleware/config"
-	_ "github.com/lib/pq" // PostgreSQL driver
+	_ "github.com/lib/pq" // PostgresSQL driver
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,7 +14,8 @@ type DBManager struct {
 }
 
 // NewDBManager creates a new DBManager.
-func NewDBManager(cfg config.DatabaseConfig) (*DBManager, error) {
+func NewDBManager() (*DBManager, error) {
+	cfg := config.GetConfig().Database
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
 		cfg.User, cfg.Password, cfg.Name, cfg.Host, cfg.Port)
 
