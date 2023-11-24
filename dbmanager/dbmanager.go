@@ -3,6 +3,7 @@ package dbmanager
 import (
 	"database/sql"
 	"fmt"
+
 	"github.com/ApolloMedTech/Middleware/config"
 	_ "github.com/lib/pq" // PostgresSQL driver
 	"github.com/sirupsen/logrus"
@@ -87,9 +88,9 @@ func (manager *DBManager) Delete(query string, args ...interface{}) (int64, erro
 
 // Select executes a select query and returns the rows.
 func (manager *DBManager) Select(query string, args ...interface{}) (*sql.Rows, error) {
-	logrus.Errorf("Error executing select query '%s': %v", query, args)
 	rows, err := manager.DB.Query(query, args...)
 	if err != nil {
+		logrus.Errorf("Error executing select query '%s': %v", query, err)
 		return nil, fmt.Errorf("error executing select query '%s': %v", query, err)
 	}
 	return rows, nil
