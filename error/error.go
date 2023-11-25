@@ -2,12 +2,13 @@ package error
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/ApolloMedTech/Middleware/config"
 	"github.com/ApolloMedTech/Middleware/http_template"
 	"github.com/flosch/pongo2/v6"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 func CustomErrorHandling(cfg config.TemplatesConfig) gin.HandlerFunc {
