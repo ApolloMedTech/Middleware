@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ApolloMedTech/Middleware/config"
 	"github.com/gin-gonic/gin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
@@ -15,6 +16,7 @@ var (
 	locales LocaleData
 	mutex   sync.RWMutex
 )
+var bundle *i18n.Bundle
 
 func InitLocalization() {
 	cfg := config.GetConfig().Localization
@@ -62,10 +64,11 @@ func loadLocaleFile(path string) {
 
 func LocalizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		lang := c.GetHeader("Accept-Language")
-		if lang == "" {
-			lang = "en"
-		}
+		acceptLang := c.GetHeader("Accept-Language")
+		localizer := i18n.NewLocalizer(bundle, acceptLang)
+
+		// This will find the best match among loaded languages
+		lang, _, _ := localizer.LocalizeWithTag(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "language_tag"}})
 
 		c.Set("localizer", lang)
 		c.Next()
