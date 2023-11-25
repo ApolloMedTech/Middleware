@@ -1,12 +1,14 @@
 package dbmanager
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
 	"github.com/ApolloMedTech/Middleware/config"
 	_ "github.com/lib/pq" // PostgresSQL driver
 	"github.com/sirupsen/logrus"
+	"github.com/volatiletech/authboss"
 )
 
 // DBManager holds the database connection pool.
@@ -112,4 +114,14 @@ func (manager *DBManager) Close() error {
 		logrus.Errorf("Error closing database connection: %v", err)
 	}
 	return nil
+}
+
+// Load implements authboss.ServerStorer.
+func (*DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
+	panic("unimplemented")
+}
+
+// Save implements authboss.ServerStorer.
+func (*DBManager) Save(ctx context.Context, user authboss.User) error {
+	panic("unimplemented")
 }
