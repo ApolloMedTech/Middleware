@@ -3,6 +3,8 @@ package cookiemanager
 import (
 	"fmt"
 	"net/http"
+
+	authboss "github.com/volatiletech/authboss/v3"
 )
 
 // MyCookieStore is a custom cookie state store that implements the authboss.ClientState interface.
@@ -43,4 +45,14 @@ func NewMyCookieStore(cookieName string) *MyCookieStore {
 // AuthHandler is a placeholder handler for demonstration purposes.
 func AuthHandler(w http.ResponseWriter, r *http.Request) {
 	// Handle authentication-related logic here
+}
+
+// ReadState implements authboss.ClientStateReadWriter.
+func (*MyCookieStore) ReadState(*http.Request) (authboss.ClientState, error) {
+	panic("unimplemented")
+}
+
+// WriteState implements authboss.ClientStateReadWriter.
+func (*MyCookieStore) WriteState(http.ResponseWriter, authboss.ClientState, []authboss.ClientStateEvent) error {
+	panic("unimplemented")
 }
