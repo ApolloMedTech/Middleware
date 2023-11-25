@@ -5,89 +5,96 @@ import (
 	"fmt"
 	"github.com/ApolloMedTech/Middleware/config"
 	"github.com/gin-gonic/gin"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
+	"sync"
 )
 
-var bundle *i18n.Bundle
+var (
+	locales LocaleData
+	mutex   sync.RWMutex
+)
 
-func InitLocalization(config config.LocalizationConfig) {
-	// Initialize the Bundle with the default language.
-	bundle = i18n.NewBundle(language.English)
-	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
-
-	// Load message files.
-	err := LoadLocaleFiles(config.LocalesPath)
-	if err != nil {
-		logrus.Error("Error loading locale files: ", err)
-		return
-	}
-
+func InitLocalization(config config.Config) {
+	locales = make(LocaleData)
+	LoadLocaleFiles(config.Localization.LocalesPath)
 }
 
-func LoadLocaleFiles(path string) error {
+func LoadLocaleFiles(path string) {
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	files, err := os.ReadDir(path)
 	if err != nil {
-		logrus.Debug("Error reading locale files: ", err)
-		return err
+		logrus.Error("Error reading locale files: ", err)
+		return
 	}
 
 	for _, f := range files {
 		if filepath.Ext(f.Name()) == ".json" {
-			logrus.Debug("Loading locale file: ", f.Name())
 			fullPath := filepath.Join(path, f.Name())
-			bundle.MustLoadMessageFile(fullPath)
+			loadLocaleFile(fullPath)
 		}
 	}
-	return nil
 }
 
-// LocalizationMiddleware detects the user's language and initializes a localizer.
+func loadLocaleFile(path string) {
+	file, err := os.Open(path)
+	if err != nil {
+		logrus.Error("Error opening locale file: ", err)
+		return
+	}
+	defer file.Close()
+
+	var data Section
+	err = json.NewDecoder(file).Decode(&data)
+	if err != nil {
+		logrus.Error("Error decoding locale file: ", err)
+		return
+	}
+
+	locale := filepath.Base(path)
+	locale = locale[:len(locale)-len(filepath.Ext(locale))] // Remove extension
+	locales[locale] = data
+}
+
 func LocalizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Detect user's language from the Accept-Language header.
 		lang := c.GetHeader("Accept-Language")
 		if lang == "" {
-			lang = "en" // default language
+			lang = "en"
 		}
 
-		// Create a localizer for the detected language.
-		localizer := i18n.NewLocalizer(bundle, lang)
-
-		// Set localizer in Gin's context for use in handlers.
-		c.Set("localizer", localizer)
-
+		c.Set("localizer", lang)
 		c.Next()
 	}
 }
 
-// GetLocalizer retrieves the localizer from Gin's context.
-func GetLocalizer(c *gin.Context) *i18n.Localizer {
+func GetLocalizer(c *gin.Context) string {
 	localizer, _ := c.Get("localizer")
-	return localizer.(*i18n.Localizer)
+	return localizer.(string)
 }
 
-// LocalizeStrings localizes a slice of message IDs and returns a map.
-func LocalizeStrings(localizer *i18n.Localizer, messageIDs []string) map[string]string {
-	localizedStrings := make(map[string]string)
-	for _, id := range messageIDs {
-		localizedStrings[id] = localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: id})
+func LocalizeSection(lang, section string) (map[string]string, error) {
+	mutex.RLock()
+	defer mutex.RUnlock()
+
+	// Check if the language exists
+	sections, ok := locales[lang]
+	if !ok {
+		return nil, fmt.Errorf("language not found")
 	}
-	return localizedStrings
+
+	// Check if the section exists
+	messages, ok := sections[section]
+	if !ok {
+		return nil, fmt.Errorf("section not found")
+	}
+
+	return messages, nil
 }
 
-func LocalizeWithArgs(localizer *i18n.Localizer, messageID string, args ...string) string {
-	templateData := make(map[string]string)
-	for i, arg := range args {
-		key := fmt.Sprintf("Arg%d", i+1)
-		templateData[key] = arg
-	}
-
-	return localizer.MustLocalize(&i18n.LocalizeConfig{
-		MessageID:    messageID,
-		TemplateData: templateData,
-	})
+func ReloadLocalization(config config.Config) {
+	LoadLocaleFiles(config.Localization.LocalesPath)
 }
