@@ -1,7 +1,9 @@
 package sessionmanager
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -70,24 +72,38 @@ func (m *MySessionStore) ReadState(r *http.Request) (authboss.ClientState, error
 	return state, nil
 }
 
-// WriteState implements authboss.ClientStateReadWriter.
-func (m *MySessionStore) WriteState(w http.ResponseWriter, r *http.Request, state authboss.ClientState, events []authboss.ClientStateEvent) error {
-	// Retrieve the session from the store using the request
-	session, err := m.store.Get(r, "my_session_name")
-	if err != nil {
-		return fmt.Errorf("failed to write client state to session: %v", err)
+// WriteState implements the authboss.SessionStorer interface
+func (s MySessionStore) WriteState(w http.ResponseWriter, state authboss.ClientState, ev []authboss.ClientStateEvent) error {
+	// Implement the logic to write the client state to the response writer
+
+	// For example, you might serialize the state and write it to a cookie
+	// or include it in the response headers.
+
+	// Here is a simple example using a cookie:
+	serializedState := serializeState(state) // Implement this function
+
+	cookie := http.Cookie{
+		Name:  "authboss_state_cookie",
+		Value: serializedState,
+		// Add other cookie options as needed (e.g., MaxAge, Path, etc.)
 	}
 
-	// Store the client state in the session
-	session.Values["clientState"] = state
-
-	// Save the session
-	err = session.Save(r, w)
-	if err != nil {
-		return fmt.Errorf("failed to save session: %v", err)
-	}
+	http.SetCookie(w, &cookie)
 
 	return nil
+}
+
+// serializeState is a function that serializes authboss.ClientState into a JSON string
+func serializeState(state authboss.ClientState) string {
+	// Serialize the ClientState to a JSON string
+	serializedState, err := json.Marshal(state)
+	if err != nil {
+		// Handle the error, for example, log it and return an empty string
+		log.Printf("Error serializing client state: %v", err)
+		return ""
+	}
+
+	return string(serializedState)
 }
 
 // NewMySessionStore creates a new instance of MySessionStore.

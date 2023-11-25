@@ -8,7 +8,7 @@ import (
 	"github.com/ApolloMedTech/Middleware/config"
 	_ "github.com/lib/pq" // PostgresSQL driver
 	"github.com/sirupsen/logrus"
-	"github.com/volatiletech/authboss/v3"
+	authboss "github.com/volatiletech/authboss/v3"
 )
 
 // DBManager holds the database connection pool.
@@ -117,6 +117,7 @@ func (manager *DBManager) Close() error {
 }
 
 // Load implements authboss.ServerStorer.
+// O key é o username do user.
 func (*DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
 	panic("unimplemented")
 }
