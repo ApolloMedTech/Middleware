@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
+	authboss "github.com/volatiletech/authboss/v3"
 )
 
 // MySessionStore is a custom session store that implements the authboss.SessionState interface.
@@ -43,6 +44,16 @@ func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value
 	}
 
 	return nil
+}
+
+// ReadState implements authboss.ClientStateReadWriter.
+func (*MySessionStore) ReadState(*http.Request) (authboss.ClientState, error) {
+	panic("unimplemented")
+}
+
+// WriteState implements authboss.ClientStateReadWriter.
+func (*MySessionStore) WriteState(http.ResponseWriter, authboss.ClientState, []authboss.ClientStateEvent) error {
+	panic("unimplemented")
 }
 
 // NewMySessionStore creates a new instance of MySessionStore.
