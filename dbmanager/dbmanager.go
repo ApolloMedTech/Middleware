@@ -8,7 +8,7 @@ import (
 	"github.com/ApolloMedTech/Middleware/config"
 	_ "github.com/lib/pq" // PostgresSQL driver
 	"github.com/sirupsen/logrus"
-	"github.com/volatiletech/authboss"
+	authboss "github.com/volatiletech/authboss/v3"
 )
 
 // DBManager holds the database connection pool.
