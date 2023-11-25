@@ -2,108 +2,132 @@ package localization
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/ApolloMedTech/Middleware/config"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
-	"sync"
+	"strings"
 )
 
+// Global variable to hold localization data
 var (
-	locales LocaleData
-	mutex   sync.RWMutex
+	localizationData LocalizationData
+	bundle           *i18n.Bundle // i18n bundle as a global variable
 )
-var bundle *i18n.Bundle
 
-func InitLocalization() {
-	cfg := config.GetConfig().Localization
-	locales = make(LocaleData)
-	bundle = i18n.NewBundle(language.English)
+// Initialize loads localization data from JSON files and initializes the i18n bundle
+func Initialize(localesPath string) {
+	// Load the localization data into the global variable
+	localizationData = LoadLocalizationData(localesPath)
+
+	// Initialize i18n bundle (this can also be a global variable if needed)
+	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
-	LoadLocaleFiles(cfg.LocalesPath)
-}
 
-func LoadLocaleFiles(path string) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	files, err := os.ReadDir(path)
+	// Load all json files from the locales folder for i18n
+	files, err := os.ReadDir(localesPath)
 	if err != nil {
-		logrus.Error("Error reading locale files: ", err)
-		return
+		log.Fatalf("Unable to read locales directory: %v", err)
 	}
 
-	for _, f := range files {
-		logrus.Debugf("Loading locale file: %v", f.Name())
-		if filepath.Ext(f.Name()) == ".json" {
-			fullPath := filepath.Join(path, f.Name())
-			loadLocaleFile(fullPath)
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".json") {
+			filePath := filepath.Join(localesPath, file.Name())
+			bundle.MustLoadMessageFile(filePath)
 		}
 	}
 }
 
-func loadLocaleFile(path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		logrus.Error("Error opening locale file: ", err)
-		return
-	}
-	defer file.Close()
-
-	var data Section
-	err = json.NewDecoder(file).Decode(&data)
-	if err != nil {
-		logrus.Error("Error decoding locale file: ", err)
-		return
-	}
-
-	locale := filepath.Base(path)
-	locale = locale[:len(locale)-len(filepath.Ext(locale))] // Remove extension
-	locales[locale] = data
-	logrus.Debugf("Loaded locale file: %v", locales)
-}
-
+// LocalizationMiddleware sets the localizer in the Gin context
 func LocalizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		acceptLang := c.GetHeader("Accept-Language")
-		localizer := i18n.NewLocalizer(bundle, acceptLang)
-
-		// This will find the best match among loaded languages
-		lang, _, _ := localizer.LocalizeWithTag(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "language_tag"}})
-
-		c.Set("localizer", lang)
+		// Assuming bundle is initialized in Initialize function
+		localizer := i18n.NewLocalizer(bundle, c.GetHeader("Accept-Language"))
+		c.Set("localizer", localizer)
 		c.Next()
 	}
 }
 
-func GetLocalizer(c *gin.Context) string {
-	localizer, _ := c.Get("localizer")
-	return localizer.(string)
-}
+// LoadLocalizationData loads localization data from JSON files in the given directory
+func LoadLocalizationData(localesPath string) LocalizationData {
+	allData := make(LocalizationData)
 
-func LocalizeSection(lang, section string) (map[string]string, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
-	// Check if the language exists
-	sections, ok := locales[lang]
-	if !ok {
-		return nil, fmt.Errorf("language not found")
+	files, err := ioutil.ReadDir(localesPath)
+	if err != nil {
+		log.Fatalf("Unable to read locales directory: %v", err)
 	}
 
-	// Check if the section exists
-	messages, ok := sections[section]
-	if !ok {
-		return nil, fmt.Errorf("section not found")
+	for _, file := range files {
+		if filepath.Ext(file.Name()) == ".json" {
+			filePath := filepath.Join(localesPath, file.Name())
+			fileData, err := os.ReadFile(filePath)
+			if err != nil {
+				log.Fatalf("Unable to read file: %v", err)
+			}
+
+			var jsonData map[string]SectionData
+			if err := json.Unmarshal(fileData, &jsonData); err != nil {
+				log.Fatalf("Error parsing JSON: %v", err)
+			}
+
+			for section, data := range jsonData {
+				if _, exists := allData[section]; !exists {
+					allData[section] = data
+				} else {
+					for key, value := range data {
+						allData[section][key] = value
+					}
+				}
+			}
+		}
 	}
 
-	return messages, nil
+	return allData
 }
 
-func ReloadLocalization(config config.Config) {
-	LoadLocaleFiles(config.Localization.LocalesPath)
+// GetSection returns all keys and values for a specific section
+func GetSection(section string) SectionData {
+	return localizationData[section]
+}
+
+// LocalizeSection returns a map of localized key-value pairs for a given section
+func LocalizeSection(localizer *i18n.Localizer, section string) (map[string]string, error) {
+	keys := GetSectionKeys(section)
+	localizedSection := make(map[string]string)
+
+	for _, key := range keys {
+		localizedValue, err := localizer.Localize(&i18n.LocalizeConfig{MessageID: key})
+		if err != nil {
+			return nil, err
+		}
+		localizedSection[key] = localizedValue
+	}
+
+	return localizedSection, nil
+}
+
+// In your localization package
+
+// GetSectionKeys returns all keys for a specific section
+func GetSectionKeys(section string) []string {
+	var keys []string
+	for key := range localizationData[section] {
+		keys = append(keys, section+"."+key)
+	}
+	return keys
+}
+
+// LocalizeSectionWithContext localizes a section based on the Gin context
+func LocalizeSectionWithContext(c *gin.Context, section string) (map[string]string, error) {
+	localizerObj, exists := c.Get("localizer")
+	if !exists {
+		return nil, errors.New("localizer not found in context")
+	}
+	localizer := localizerObj.(*i18n.Localizer)
+
+	return LocalizeSection(localizer, section)
 }

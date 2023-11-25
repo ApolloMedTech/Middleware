@@ -1,5 +1,7 @@
 package localization
 
-type Messages map[string]string
-type Section map[string]Messages
-type LocaleData map[string]Section
+// SectionData represents the data of a specific section in your JSON files
+type SectionData map[string]string
+
+// LocalizationData holds all sections with their respective translations
+type LocalizationData map[string]SectionData
