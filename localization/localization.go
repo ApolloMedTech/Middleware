@@ -24,11 +24,11 @@ func Initialize(localesPath string) {
 	// Load the localization data into the global variable
 	localizationData = LoadLocalizationData(localesPath)
 
-	// Initialize i18n bundle (this can also be a global variable if needed)
-	bundle := i18n.NewBundle(language.English)
+	// Correctly initialize the global bundle variable
+	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
-	// Load all json files from the locales folder for i18n
+	// Load all JSON files from the locales folder for i18n
 	files, err := os.ReadDir(localesPath)
 	if err != nil {
 		log.Fatalf("Unable to read locales directory: %v", err)
