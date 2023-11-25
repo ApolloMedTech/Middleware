@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
 	"sync"
@@ -21,6 +22,8 @@ var bundle *i18n.Bundle
 func InitLocalization() {
 	cfg := config.GetConfig().Localization
 	locales = make(LocaleData)
+	bundle = i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	LoadLocaleFiles(cfg.LocalesPath)
 }
 
