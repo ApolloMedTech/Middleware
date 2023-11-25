@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/ApolloMedTech/Middleware/config"
 	"github.com/gin-gonic/gin"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
 	"sync"
@@ -15,10 +17,13 @@ var (
 	locales LocaleData
 	mutex   sync.RWMutex
 )
+var bundle *i18n.Bundle
 
 func InitLocalization() {
 	cfg := config.GetConfig().Localization
 	locales = make(LocaleData)
+	bundle = i18n.NewBundle(language.English)
+	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 	LoadLocaleFiles(cfg.LocalesPath)
 }
 
@@ -33,6 +38,7 @@ func LoadLocaleFiles(path string) {
 	}
 
 	for _, f := range files {
+		logrus.Debugf("Loading locale file: %v", f.Name())
 		if filepath.Ext(f.Name()) == ".json" {
 			fullPath := filepath.Join(path, f.Name())
 			loadLocaleFile(fullPath)
@@ -58,14 +64,16 @@ func loadLocaleFile(path string) {
 	locale := filepath.Base(path)
 	locale = locale[:len(locale)-len(filepath.Ext(locale))] // Remove extension
 	locales[locale] = data
+	logrus.Debugf("Loaded locale file: %v", locales)
 }
 
 func LocalizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		lang := c.GetHeader("Accept-Language")
-		if lang == "" {
-			lang = "en"
-		}
+		acceptLang := c.GetHeader("Accept-Language")
+		localizer := i18n.NewLocalizer(bundle, acceptLang)
+
+		// This will find the best match among loaded languages
+		lang, _, _ := localizer.LocalizeWithTag(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "language_tag"}})
 
 		c.Set("localizer", lang)
 		c.Next()
