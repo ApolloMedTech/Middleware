@@ -43,24 +43,19 @@ func NewMyCookieStore(cookieName string) *MyCookieStore {
 	}
 }
 
-// // AuthHandler is a placeholder handler for demonstration purposes.
-// func AuthHandler(w http.ResponseWriter, r *http.Request) {
-// 	// Handle authentication-related logic here
-// }
-
 // ReadState implements authboss.ClientStateReadWriter.
 func (m *MyCookieStore) ReadState(r *http.Request) (authboss.ClientState, error) {
+	var state authboss.ClientState
 	cookie, err := r.Cookie(m.cookieName)
 	if err != nil {
 		// Return an empty state if the cookie is not found (no error for missing cookie)
 		if err == http.ErrNoCookie {
-			// return authboss.ClientState{}, nil
+			return state, nil
 		}
 		return nil, err
 	}
 
 	// Decode the cookie value (assuming it's JSON)
-	var state authboss.ClientState
 	err = json.Unmarshal([]byte(cookie.Value), &state)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode client state cookie: %v", err)

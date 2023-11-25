@@ -49,11 +49,13 @@ func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value
 // ReadState implements authboss.ClientStateReadWriter.
 func (m *MySessionStore) ReadState(r *http.Request) (authboss.ClientState, error) {
 	// Retrieve the session from the store using the request
+	var state authboss.ClientState
+
 	session, err := m.store.Get(r, "my_session_name")
 	if err != nil {
 		// Return an empty state if the session is not found (no error for missing session)
 		if err == http.ErrNoCookie {
-			// return make(authboss.ClientState), nil
+			return state, nil
 		}
 		return nil, fmt.Errorf("failed to read client state from session: %v", err)
 	}
@@ -62,7 +64,7 @@ func (m *MySessionStore) ReadState(r *http.Request) (authboss.ClientState, error
 	state, ok := session.Values["clientState"].(authboss.ClientState)
 	if !ok {
 		// Return an empty state if the client state is not found in the session
-		// return make(authboss.ClientState), nil
+		return state, nil
 	}
 
 	return state, nil
