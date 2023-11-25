@@ -45,9 +45,18 @@ func Initialize(localesPath string) {
 // LocalizationMiddleware sets the localizer in the Gin context
 func LocalizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Assuming bundle is initialized in Initialize function
-		localizer := i18n.NewLocalizer(bundle, c.GetHeader("Accept-Language"))
+		// Detect user's language from the Accept-Language header.
+		lang := c.GetHeader("Accept-Language")
+		if lang == "" {
+			lang = "en" // default language
+		}
+
+		// Create a localizer for the detected language.
+		localizer := i18n.NewLocalizer(bundle, lang)
+
+		// Set localizer in Gin's context for use in handlers.
 		c.Set("localizer", localizer)
+
 		c.Next()
 	}
 }
