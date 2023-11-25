@@ -16,9 +16,9 @@ var (
 	mutex   sync.RWMutex
 )
 
-func InitLocalization(config config.Config) {
+func InitLocalization(config config.LocalizationConfig) {
 	locales = make(LocaleData)
-	LoadLocaleFiles(config.Localization.LocalesPath)
+	LoadLocaleFiles(config.LocalesPath)
 }
 
 func LoadLocaleFiles(path string) {
