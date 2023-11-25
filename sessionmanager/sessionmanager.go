@@ -14,6 +14,12 @@ type MySessionStore struct {
 	store sessions.Store
 }
 
+// SessionState is an authboss.ClientState implementation that
+// holds the request's session values for the duration of the request.
+type SessionState struct {
+	session *sessions.Session
+}
+
 func (m *MySessionStore) Load(w http.ResponseWriter, r *http.Request, key string) (string, error) {
 	session, err := m.store.Get(r, key)
 	if err != nil {
@@ -69,12 +75,6 @@ func (m *MySessionStore) ReadState(r *http.Request) (authboss.ClientState, error
 	}
 
 	return state, nil
-}
-
-// SessionState is an authboss.ClientState implementation that
-// holds the request's session values for the duration of the request.
-type SessionState struct {
-	session *sessions.Session
 }
 
 // Get a key from the session
