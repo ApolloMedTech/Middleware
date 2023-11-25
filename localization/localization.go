@@ -10,100 +10,84 @@ import (
 	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
-	"sync"
 )
 
-var (
-	locales LocaleData
-	mutex   sync.RWMutex
-)
 var bundle *i18n.Bundle
 
-func InitLocalization() {
-	cfg := config.GetConfig().Localization
-	locales = make(LocaleData)
+func InitLocalization(config config.LocalizationConfig) {
+	// Initialize the Bundle with the default language.
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
-	LoadLocaleFiles(cfg.LocalesPath)
+
+	// Load message files.
+	err := LoadLocaleFiles(config.LocalesPath)
+	if err != nil {
+		logrus.Error("Error loading locale files: ", err)
+		return
+	}
+
 }
 
-func LoadLocaleFiles(path string) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
+func LoadLocaleFiles(path string) error {
 	files, err := os.ReadDir(path)
 	if err != nil {
-		logrus.Error("Error reading locale files: ", err)
-		return
+		logrus.Debug("Error reading locale files: ", err)
+		return err
 	}
 
 	for _, f := range files {
-		logrus.Debugf("Loading locale file: %v", f.Name())
 		if filepath.Ext(f.Name()) == ".json" {
+			logrus.Debug("Loading locale file: ", f.Name())
 			fullPath := filepath.Join(path, f.Name())
-			loadLocaleFile(fullPath)
+			bundle.MustLoadMessageFile(fullPath)
 		}
 	}
+	return nil
 }
 
-func loadLocaleFile(path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		logrus.Error("Error opening locale file: ", err)
-		return
-	}
-	defer file.Close()
-
-	var data Section
-	err = json.NewDecoder(file).Decode(&data)
-	if err != nil {
-		logrus.Error("Error decoding locale file: ", err)
-		return
-	}
-
-	locale := filepath.Base(path)
-	locale = locale[:len(locale)-len(filepath.Ext(locale))] // Remove extension
-	locales[locale] = data
-	logrus.Debugf("Loaded locale file: %v", locales)
-}
-
+// LocalizationMiddleware detects the user's language and initializes a localizer.
 func LocalizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		acceptLang := c.GetHeader("Accept-Language")
-		localizer := i18n.NewLocalizer(bundle, acceptLang)
+		// Detect user's language from the Accept-Language header.
+		lang := c.GetHeader("Accept-Language")
+		if lang == "" {
+			lang = "en" // default language
+		}
 
-		// This will find the best match among loaded languages
-		lang, _, _ := localizer.LocalizeWithTag(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "language_tag"}})
+		// Create a localizer for the detected language.
+		localizer := i18n.NewLocalizer(bundle, lang)
 
-		c.Set("localizer", lang)
+		// Set localizer in Gin's context for use in handlers.
+		c.Set("localizer", localizer)
+
 		c.Next()
 	}
 }
 
-func GetLocalizer(c *gin.Context) string {
+// GetLocalizer retrieves the localizer from Gin's context.
+func GetLocalizer(c *gin.Context) *i18n.Localizer {
 	localizer, _ := c.Get("localizer")
-	return localizer.(string)
+	return localizer.(*i18n.Localizer)
 }
 
-func LocalizeSection(lang, section string) (map[string]string, error) {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
-	// Check if the language exists
-	sections, ok := locales[lang]
-	if !ok {
-		return nil, fmt.Errorf("language not found")
+// LocalizeStrings localizes a slice of message IDs and returns a map.
+func LocalizeStrings(localizer *i18n.Localizer, messageIDs []string) map[string]string {
+	localizedStrings := make(map[string]string)
+	for _, id := range messageIDs {
+		localizedStrings[id] = localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: id})
 	}
-
-	// Check if the section exists
-	messages, ok := sections[section]
-	if !ok {
-		return nil, fmt.Errorf("section not found")
-	}
-
-	return messages, nil
+	return localizedStrings
 }
 
-func ReloadLocalization(config config.Config) {
-	LoadLocaleFiles(config.Localization.LocalesPath)
+func LocalizeWithArgs(localizer *i18n.Localizer, messageID string, args ...string) string {
+	templateData := make(map[string]string)
+	for i, arg := range args {
+		key := fmt.Sprintf("Arg%d", i+1)
+		templateData[key] = arg
+	}
+
+	return localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID:    messageID,
+		TemplateData: templateData,
+	})
 }
