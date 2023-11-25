@@ -60,6 +60,7 @@ func loadLocaleFile(path string) {
 	locale := filepath.Base(path)
 	locale = locale[:len(locale)-len(filepath.Ext(locale))] // Remove extension
 	locales[locale] = data
+	logrus.Debugf("Loaded locale file: %v", locales)
 }
 
 func LocalizationMiddleware() gin.HandlerFunc {
