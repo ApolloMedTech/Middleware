@@ -47,13 +47,45 @@ func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value
 }
 
 // ReadState implements authboss.ClientStateReadWriter.
-func (*MySessionStore) ReadState(*http.Request) (authboss.ClientState, error) {
-	panic("unimplemented")
+func (m *MySessionStore) ReadState(r *http.Request) (authboss.ClientState, error) {
+	// Retrieve the session from the store using the request
+	session, err := m.store.Get(r, "my_session_name")
+	if err != nil {
+		// Return an empty state if the session is not found (no error for missing session)
+		if err == http.ErrNoCookie {
+			// return make(authboss.ClientState), nil
+		}
+		return nil, fmt.Errorf("failed to read client state from session: %v", err)
+	}
+
+	// Extract the client state from the session
+	state, ok := session.Values["clientState"].(authboss.ClientState)
+	if !ok {
+		// Return an empty state if the client state is not found in the session
+		// return make(authboss.ClientState), nil
+	}
+
+	return state, nil
 }
 
 // WriteState implements authboss.ClientStateReadWriter.
-func (*MySessionStore) WriteState(http.ResponseWriter, authboss.ClientState, []authboss.ClientStateEvent) error {
-	panic("unimplemented")
+func (m *MySessionStore) WriteState(w http.ResponseWriter, r *http.Request, state authboss.ClientState, events []authboss.ClientStateEvent) error {
+	// Retrieve the session from the store using the request
+	session, err := m.store.Get(r, "my_session_name")
+	if err != nil {
+		return fmt.Errorf("failed to write client state to session: %v", err)
+	}
+
+	// Store the client state in the session
+	session.Values["clientState"] = state
+
+	// Save the session
+	err = session.Save(r, w)
+	if err != nil {
+		return fmt.Errorf("failed to save session: %v", err)
+	}
+
+	return nil
 }
 
 // NewMySessionStore creates a new instance of MySessionStore.
