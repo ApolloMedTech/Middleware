@@ -35,6 +35,7 @@ func LoadLocaleFiles(path string) {
 	}
 
 	for _, f := range files {
+		logrus.Debugf("Loading locale file: %v", f.Name())
 		if filepath.Ext(f.Name()) == ".json" {
 			fullPath := filepath.Join(path, f.Name())
 			loadLocaleFile(fullPath)
