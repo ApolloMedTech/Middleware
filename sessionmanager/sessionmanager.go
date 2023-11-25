@@ -3,7 +3,6 @@ package sessionmanager
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -74,36 +73,35 @@ func (m *MySessionStore) ReadState(r *http.Request) (authboss.ClientState, error
 
 // WriteState implements the authboss.SessionStorer interface
 func (s MySessionStore) WriteState(w http.ResponseWriter, state authboss.ClientState, ev []authboss.ClientStateEvent) error {
-	// Implement the logic to write the client state to the response writer
 
-	// For example, you might serialize the state and write it to a cookie
-	// or include it in the response headers.
+	// Use a closure to capture the request
+	doWriteState := func(r *http.Request) error {
+		// Serialize the ClientState to a JSON string
+		serializedState, err := json.Marshal(state)
+		if err != nil {
+			return err
+		}
 
-	// Here is a simple example using a cookie:
-	serializedState := serializeState(state) // Implement this function
+		// Get the session from the request
+		session, err := s.store.Get(r, "authsession")
+		if err != nil {
+			return err
+		}
 
-	cookie := http.Cookie{
-		Name:  "authboss_state_cookie",
-		Value: serializedState,
-		// Add other cookie options as needed (e.g., MaxAge, Path, etc.)
+		// Store the serialized state in the session
+		session.Values["authboss_state"] = string(serializedState)
+
+		// Save the session
+		err = session.Save(r, w)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	http.SetCookie(w, &cookie)
-
-	return nil
-}
-
-// serializeState is a function that serializes authboss.ClientState into a JSON string
-func serializeState(state authboss.ClientState) string {
-	// Serialize the ClientState to a JSON string
-	serializedState, err := json.Marshal(state)
-	if err != nil {
-		// Handle the error, for example, log it and return an empty string
-		log.Printf("Error serializing client state: %v", err)
-		return ""
-	}
-
-	return string(serializedState)
+	// Perform the write state operation using the closure
+	return doWriteState(nil) // Pass the actual request when calling this method
 }
 
 // NewMySessionStore creates a new instance of MySessionStore.
