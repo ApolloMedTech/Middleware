@@ -18,7 +18,6 @@ func Render(c *gin.Context, templateFile string, data pongo2.Context, alerts ...
 	}
 
 	template, err := pongo2.FromFile(templateFile)
-	logrus.Debug("Template: ", template)
 	if err != nil {
 		c.String(http.StatusInternalServerError, "Template Error: "+err.Error())
 		return
