@@ -31,7 +31,6 @@ func Render(c *gin.Context, templateFile string, data pongo2.Context, alerts ...
 		c.String(http.StatusInternalServerError, "Template Execution Error: "+err.Error())
 		return
 	}
-	logrus.Debug("HTML: ", html)
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, html)
 }
