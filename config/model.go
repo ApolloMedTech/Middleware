@@ -53,3 +53,19 @@ type LogConfig struct {
 	MaxAgeDays  int    `yaml:"maxAgeDays"`
 	LogToStdout bool   `yaml:"logToStdout"`
 }
+
+type ApolloUser struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	PID      string `json:"pid"` // needed for AuthBoss
+}
+
+func (u *ApolloUser) GetPID() string {
+	return u.PID
+}
+
+func (u *ApolloUser) PutPID(pid string) {
+	u.PID = pid
+}
