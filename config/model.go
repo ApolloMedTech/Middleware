@@ -69,3 +69,44 @@ func (u *ApolloUser) GetPID() string {
 func (u *ApolloUser) PutPID(pid string) {
 	u.PID = pid
 }
+
+func (u *ApolloUser) GetPassword() (password string) {
+	return u.Password
+}
+
+func (u *ApolloUser) PutPassword(password string) {
+	u.Password = password
+}
+
+// Validate and return a list of errors
+func (u *ApolloUser) Validate() []error {
+	var errors []error
+	//TODO: make validations
+	// if u.ID <= 0 {
+
+	// 	//errors = append(errors, error.New("ID must be greater than 0"))
+	// }
+
+	// if strings.TrimSpace(u.Name) == "" {
+	// 	//errors = append(errors, errors.New("Name cannot be empty"))
+	// }
+
+	// if strings.TrimSpace(u.Email) == "" {
+	// 	//errors = append(errors, errors.New("Email cannot be empty"))
+	// } else if !strings.Contains(u.Email, "@") {
+	// 	//errors = append(errors, errors.New("Email must be a valid email address"))
+	// }
+
+	// if strings.TrimSpace(u.Password) == "" {
+	// 	//errors = append(errors, errors.New("Password cannot be empty"))
+	// }
+
+	// if strings.TrimSpace(u.PID) == "" {
+	// 	//errors = append(errors, errors.New("PID cannot be empty"))
+	// }
+	return errors
+}
+
+// func (v *Validator) GetPID() string {
+
+// }
