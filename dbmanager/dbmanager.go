@@ -116,13 +116,49 @@ func (manager *DBManager) Close() error {
 	return nil
 }
 
-// Load implements authboss.ServerStorer.
-// O key é o username do user.
-func (*DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
-	panic("unimplemented")
+func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
+    // Use ConnectDB to establish a database connection
+    dbManager, err := dbmanager.NewDBManager()
+    if err != nil {
+        return nil, err
+    }
+
+    defer dbManager.DB.Close()
+
+    // Prepare SQL query to fetch user data based on username
+    row := dbManager.QueryRow("SELECT id, username, email FROM users WHERE username = $1;", key)
+
+    var user User
+    // Scan the retrieved row into the User struct
+    err = row.Scan(&user.ID, &user.Username, &user.Email)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return nil, authboss.ErrUserNotFound // User not found
+        }
+        return nil, err // Other error while scanning
+    }
+
+    // Return the user object retrieved from the database
+    return &user, nil
 }
 
-// Save implements authboss.ServerStorer.
+
 func (*DBManager) Save(ctx context.Context, user authboss.User) error {
-	panic("unimplemented")
+    // Use ConnectDB to establish a database connection
+    dbManager, err := dbmanager.NewDBManager()
+    if err != nil {
+        return err
+    }
+    defer dbManager.DB.Close()
+
+    // Prepare SQL query for user insertion
+    _, err = dbManager.Exec("INSERT INTO users (email, password_hash) VALUES ($1, $2);",
+        user.ID, user.Username, user.Email)
+    if err != nil {
+        return err
+    }
+
+    // If the insertion was successful, return nil indicating no error
+    return nil
 }
+
