@@ -142,7 +142,7 @@ func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error
 	return &user, nil
 }
 
-func (*DBManager) Save(ctx context.Context, user authboss.User) error {
+func (*DBManager) Save(ctx context.Context, user config.ApolloUser) error {
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
 	if err != nil {
@@ -152,7 +152,7 @@ func (*DBManager) Save(ctx context.Context, user authboss.User) error {
 
 	// Prepare SQL query for user insertion
 	_, err = dbManager.DB.Exec("INSERT INTO users (email, password_hash) VALUES ($1, $2);",
-		user.ID, user.Email, user.Password)
+		user.Email, user.Password)
 	if err != nil {
 		return err
 	}
