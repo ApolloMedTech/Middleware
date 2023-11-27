@@ -20,14 +20,12 @@ func Render(c *gin.Context, templateFile string, data pongo2.Context, alerts ...
 	template, err := pongo2.FromFile(templateFile)
 	logrus.Debug("Template: ", template)
 	if err != nil {
-		logrus.Debug("Template Error: ", err)
 		c.String(http.StatusInternalServerError, "Template Error: "+err.Error())
 		return
 	}
 	logrus.Debug("Data: ", data)
 	html, err := template.Execute(data)
 	if err != nil {
-		logrus.Debug("Template Execution Error: ", err)
 		c.String(http.StatusInternalServerError, "Template Execution Error: "+err.Error())
 		return
 	}
