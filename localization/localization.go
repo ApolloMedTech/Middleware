@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
@@ -110,16 +109,4 @@ func LocalizeDate(c *gin.Context, year int, month int, day int) string {
 		},
 	})
 	return dateString
-}
-
-// LocalizeCurrency formats a currency value according to the language in the localizer and currency unit.
-func LocalizeCurrency(c *gin.Context, value float64, currencyUnit currency.Unit) string {
-	localizer := GetLocalizer(c)
-	currencyString := localizer.MustLocalize(&i18n.LocalizeConfig{
-		DefaultMessage: &i18n.Message{
-			ID:    "Currency",
-			Other: currency.Symbol(currencyUnit.Amount(value)),
-		},
-	})
-	return currencyString
 }
