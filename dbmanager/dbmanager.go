@@ -116,6 +116,8 @@ func (manager *DBManager) Close() error {
 	return nil
 }
 
+// AB - SERVER STORER
+
 func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
@@ -142,7 +144,8 @@ func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error
 	return &user, nil
 }
 
-func (*DBManager) Save(ctx context.Context, user config.ApolloUser) error {
+func (*DBManager) Save(ctx context.Context, user authboss.User) error {
+
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
 	if err != nil {
@@ -152,11 +155,39 @@ func (*DBManager) Save(ctx context.Context, user config.ApolloUser) error {
 
 	// Prepare SQL query for user insertion
 	_, err = dbManager.DB.Exec("INSERT INTO users (email, password_hash) VALUES ($1, $2);",
-		user.Email, user.Password)
+		user.(*config.ApolloUser).Email, user.(*config.ApolloUser).Password)
 	if err != nil {
 		return err
 	}
 
 	// If the insertion was successful, return nil indicating no error
 	return nil
+}
+
+// AB - RECOVERING SERVER STORER
+
+func (*DBManager) LoadByRecoverSelector(ctx context.Context, selector string) (authboss.RecoverableUser, error) {
+	// Use ConnectDB to establish a database connection
+	dbManager, err := NewDBManager()
+	if err != nil {
+		return nil, err
+	}
+
+	defer dbManager.DB.Close()
+
+	// Prepare SQL query to fetch user data based on selector
+	row := dbManager.DB.QueryRow("SELECT id, email, recoverselector, recoververifier, recoveryexpiry FROM users WHERE recoverselector = $1;", selector)
+
+	var user config.ApolloUser
+	// Scan the retrieved row into the User struct
+	err = row.Scan(&user.ID, &user.Email, &user.RecoverSelector, &user.RecoverVerifier, &user.RecoverExpiry)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, authboss.ErrUserNotFound // User not found
+		}
+		return nil, err // Other error while scanning
+	}
+
+	// Return the user object retrieved from the database
+	return &user, nil
 }

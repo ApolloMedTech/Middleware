@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 // Config armazena as configurações do aplicativo.
 type Config struct {
 	Assets       AssetsConfig       `yaml:"assets"`
@@ -54,13 +56,19 @@ type LogConfig struct {
 	LogToStdout bool   `yaml:"logToStdout"`
 }
 
+// AUTHBOSS INTERFACES
 type ApolloUser struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	PID      string `json:"pid"` // needed for AuthBoss
+	ID              int       `json:"id"`
+	Name            string    `json:"name"`
+	Email           string    `json:"email"`
+	Password        string    `json:"password"`
+	PID             string    `json:"pid"` // needed for AuthBoss
+	RecoverSelector string    `json:"recoverselector"`
+	RecoverVerifier string    `json:"recoververifier"`
+	RecoverExpiry   time.Time `json:"recoveryexpiry"`
 }
+
+//  AB - AUTHBOSS USER
 
 func (u *ApolloUser) GetPID() string {
 	return u.PID
@@ -70,6 +78,8 @@ func (u *ApolloUser) PutPID(pid string) {
 	u.PID = pid
 }
 
+// AB - AUTHABLE USER
+
 func (u *ApolloUser) GetPassword() (password string) {
 	return u.Password
 }
@@ -78,35 +88,36 @@ func (u *ApolloUser) PutPassword(password string) {
 	u.Password = password
 }
 
-// Validate and return a list of errors
-func (u *ApolloUser) Validate() []error {
-	var errors []error
-	//TODO: make validations
-	// if u.ID <= 0 {
+// AB - RECOVERABLE USER
 
-	// 	//errors = append(errors, error.New("ID must be greater than 0"))
-	// }
-
-	// if strings.TrimSpace(u.Name) == "" {
-	// 	//errors = append(errors, errors.New("Name cannot be empty"))
-	// }
-
-	// if strings.TrimSpace(u.Email) == "" {
-	// 	//errors = append(errors, errors.New("Email cannot be empty"))
-	// } else if !strings.Contains(u.Email, "@") {
-	// 	//errors = append(errors, errors.New("Email must be a valid email address"))
-	// }
-
-	// if strings.TrimSpace(u.Password) == "" {
-	// 	//errors = append(errors, errors.New("Password cannot be empty"))
-	// }
-
-	// if strings.TrimSpace(u.PID) == "" {
-	// 	//errors = append(errors, errors.New("PID cannot be empty"))
-	// }
-	return errors
+func (u *ApolloUser) GetEmail() (email string) {
+	return u.Email
 }
 
-// func (v *Validator) GetPID() string {
+func (u *ApolloUser) GetRecoverSelector() (selector string) {
+	return u.RecoverSelector
+}
 
-// }
+func (u *ApolloUser) GetRecoverVerifier() (verifier string) {
+	return u.RecoverVerifier
+}
+
+func (u *ApolloUser) GetRecoverExpiry() (expiry time.Time) {
+	return u.RecoverExpiry
+}
+
+func (u *ApolloUser) PutEmail(email string) {
+	u.Email = email
+}
+
+func (u *ApolloUser) PutRecoverSelector(selector string) {
+	u.RecoverSelector = selector
+}
+
+func (u *ApolloUser) PutRecoverVerifier(verifier string) {
+	u.RecoverVerifier = verifier
+}
+
+func (u *ApolloUser) PutRecoverExpiry(expiry time.Time) {
+	u.RecoverExpiry = expiry
+}
