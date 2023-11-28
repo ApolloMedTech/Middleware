@@ -2,14 +2,15 @@ package localization
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/ApolloMedTech/Middleware/config"
 	"github.com/gin-gonic/gin"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 var bundle *i18n.Bundle
@@ -79,15 +80,46 @@ func LocalizeStrings(localizer *i18n.Localizer, messageIDs []string) map[string]
 	return localizedStrings
 }
 
-func LocalizeWithArgs(localizer *i18n.Localizer, messageID string, args ...string) string {
-	templateData := make(map[string]string)
-	for i, arg := range args {
-		key := fmt.Sprintf("Arg%d", i+1)
-		templateData[key] = arg
+// LocalizePlural is a helper function that localizes a message ID with pluralization
+func LocalizePlural(c *gin.Context, messageID string, count int) string {
+	localizedString, err := GetLocalizer(c).Localize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID: messageID,
+		},
+		PluralCount: count,
+	})
+
+	if err != nil {
+		logrus.Error("Error localizing string: ", err)
+		return "" // or return a default message
 	}
 
-	return localizer.MustLocalize(&i18n.LocalizeConfig{
-		MessageID:    messageID,
-		TemplateData: templateData,
+	return localizedString
+}
+
+// LocalizeDate formats a date according to the language in the localizer.
+func LocalizeDate(c *gin.Context, year int, month int, day int) string {
+	localizer := GetLocalizer(c)
+	t := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	dateString := localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID: "DateFormat",
+		},
+		TemplateData: map[string]interface{}{
+			"Date": t,
+		},
 	})
+	return dateString
+}
+
+// LocalizeCurrency formats a currency value according to the language in the localizer and currency unit.
+func LocalizeCurrency(c *gin.Context, value float64, currencyUnit currency.Unit) string {
+	localizer := GetLocalizer(c)
+	currencyString := localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "Currency",
+			Other: currency.Symbol(currencyUnit.Amount(value)),
+		},
+	})
+	return currencyString
 }
