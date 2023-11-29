@@ -113,7 +113,8 @@ func LocalizeDate(c *gin.Context, year int, month int, day int) string {
 }
 
 // LocalizePrefixStrings Modify the  function to use SearchPrefix to find all keys that start with the given prefix, and then localize those strings.
-func LocalizePrefixStrings(localizer *i18n.Localizer, partialID string) map[string]string {
+func LocalizePrefixStrings(c *gin.Context, partialID string) map[string]string {
+	localizer := GetLocalizer(c)
 	localizedStrings := make(map[string]string)
 	ids := trie.searchPrefix(partialID)
 	for _, id := range ids {
