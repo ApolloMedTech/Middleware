@@ -15,13 +15,18 @@ import (
 var bundle *i18n.Bundle
 var trie *Trie // Declare trie as a global variable
 
+type Message struct {
+	ID    string `json:"id"`
+	Other string `json:"other"`
+}
+
 func InitLocalization(config config.LocalizationConfig) {
 	// Initialize the Bundle with the default language.
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	// Load message files.
-	err := LoadLocaleFiles(config.LocalesPath)
+	err := newLoadLocaleFiles(config.LocalesPath)
 	if err != nil {
 		logrus.Error("Error loading locale files: ", err)
 		return
@@ -167,4 +172,41 @@ func (t *Trie) collectAllKeys(node *TrieNode, prefix string, results *[]string) 
 	for char, childNode := range node.children {
 		t.collectAllKeys(childNode, prefix+string(char), results)
 	}
+}
+
+func newLoadLocaleFiles(path string) error {
+	files, err := os.ReadDir(path)
+	if err != nil {
+		logrus.Debug("Error reading locale files: ", err)
+		return err
+	}
+
+	for _, f := range files {
+		if filepath.Ext(f.Name()) == ".json" {
+			logrus.Debug("Loading locale file: ", f.Name())
+			fullPath := filepath.Join(path, f.Name())
+			file, err := os.Open(fullPath)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			var messages []Message
+			if err := json.NewDecoder(file).Decode(&messages); err != nil {
+				return err
+			}
+
+			for _, message := range messages {
+				// Insert the message ID into the trie
+				trie.insert(message.ID)
+
+				// Add the message to the bundle
+				bundle.AddMessages(language.English, &i18n.Message{
+					ID:    message.ID,
+					Other: message.Other,
+				})
+			}
+		}
+	}
+	return nil
 }
