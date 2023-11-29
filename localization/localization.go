@@ -25,13 +25,15 @@ func InitLocalization(config config.LocalizationConfig) {
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
+	trie = newTrie() // Initialize the trie
+	
 	// Load message files.
 	err := newLoadLocaleFiles(config.LocalesPath)
 	if err != nil {
 		logrus.Error("Error loading locale files: ", err)
 		return
 	}
-	trie = newTrie() // Initialize the trie
+
 }
 
 func LoadLocaleFiles(path string) error {
