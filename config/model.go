@@ -58,11 +58,12 @@ type LogConfig struct {
 
 // AUTHBOSS INTERFACES
 type ApolloUser struct {
-	ID              int       `json:"id"`
-	Name            string    `json:"name"`
-	Email           string    `json:"email"`
-	Password        string    `json:"password"`
-	PID             string    `json:"pid"` // needed for AuthBoss
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	// needed for AuthBoss
+	PID             string    `json:"pid"`
 	RecoverSelector string    `json:"recoverselector"`
 	RecoverVerifier string    `json:"recoververifier"`
 	RecoverExpiry   time.Time `json:"recoveryexpiry"`
