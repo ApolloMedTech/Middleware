@@ -27,6 +27,7 @@ func AddAlert(c *gin.Context, msg string, typ AlertType) {
 	alerts, err := getAlertsFromSession(c)
 	if err != nil {
 		// handle error
+		logrus.Error("Failed to get alerts from session: ", err)
 	}
 
 	// If the number of alerts has reached the limit, remove the oldest alert
@@ -40,6 +41,7 @@ func AddAlert(c *gin.Context, msg string, typ AlertType) {
 	err = session.Save()
 	if err != nil {
 		// handle error
+		logrus.Error("Failed to save alerts to session: ", err)
 	}
 	logrus.Debug("Alert added")
 }
@@ -49,6 +51,7 @@ func GetAlerts(c *gin.Context) []Alert {
 	alerts, err := getAlertsFromSession(c)
 	if err != nil {
 		// handle error
+		logrus.Error("Failed to get alerts from session: ", err)
 	}
 	return alerts
 }
