@@ -49,6 +49,7 @@ func AddAlert(c *gin.Context, msg string, typ AlertType) {
 func GetAlerts(c *gin.Context) []Alert {
 	logrus.Debug("Getting alerts")
 	alerts, err := getAlertsFromSession(c)
+	logrus.Debug("Alerts: ", alerts)
 	if err != nil {
 		// handle error
 		logrus.Error("Failed to get alerts from session: ", err)
