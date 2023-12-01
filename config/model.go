@@ -1,6 +1,10 @@
 package config
 
-import "time"
+import (
+	"time"
+
+	authboss "github.com/volatiletech/authboss/v3"
+)
 
 // Config armazena as configurações do aplicativo.
 type Config struct {
@@ -67,6 +71,9 @@ type ApolloUser struct {
 	RecoverSelector string    `json:"recoverselector"`
 	RecoverVerifier string    `json:"recoververifier"`
 	RecoverExpiry   time.Time `json:"recoveryexpiry"`
+	authboss.User
+	authboss.AuthableUser
+	authboss.RecoverableUser
 }
 
 //  AB - AUTHBOSS USER
