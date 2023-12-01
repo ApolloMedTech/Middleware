@@ -1,6 +1,4 @@
-package http_template
-
-//TODO Remove this file when AlertManager is implemented
+package AlertManager
 
 type AlertType string
 
@@ -16,6 +14,6 @@ const (
 )
 
 type Alert struct {
-	Type AlertType
-	Text string
+	Type    AlertType
+	Message string
 }
