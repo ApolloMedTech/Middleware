@@ -22,6 +22,7 @@ func AlertMiddleware(store sessions.Store) gin.HandlerFunc {
 }
 
 func AddAlert(c *gin.Context, msg string, typ AlertType) {
+	logrus.Debug("Adding alert")
 	session := sessions.Default(c)
 	alerts, err := getAlertsFromSession(c)
 	if err != nil {
@@ -34,11 +35,13 @@ func AddAlert(c *gin.Context, msg string, typ AlertType) {
 	}
 
 	alerts = append(alerts, Alert{Type: typ, Message: msg})
+	logrus.Debug("Alerts: ", alerts)
 	session.Set(SessionKey, alerts)
 	err = session.Save()
 	if err != nil {
 		// handle error
 	}
+	logrus.Debug("Alert added")
 }
 
 func GetAlerts(c *gin.Context) []Alert {
