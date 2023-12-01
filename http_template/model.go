@@ -1,6 +1,6 @@
 package http_template
 
-//TODO Remove this file when AlertManager is implemented
+//TODO Remove this file when alertManager is implemented
 
 type AlertType string
 

@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/flosch/pongo2/v6 v6.0.0
+	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-gonic/gin v1.9.1
 	github.com/lib/pq v1.10.9
 	github.com/nicksnyder/go-i18n/v2 v2.2.2
@@ -16,6 +17,7 @@ require (
 require (
 	github.com/friendsofgo/errors v0.9.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
@@ -43,7 +45,7 @@ require (
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/volatiletech/authboss/v3 v3.4.0
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.14.0
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect

@@ -1,4 +1,4 @@
-package AlertManager
+package alertManager
 
 import (
 	"fmt"
