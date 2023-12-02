@@ -62,6 +62,7 @@ func NewRender(c *gin.Context, templateFile string, data pongo2.Context, localiz
 		c.String(http.StatusInternalServerError, "Template Execution Error: "+err.Error())
 		return
 	}
+	alertManager.ClearAlerts(c)
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.String(http.StatusOK, html)
 }
