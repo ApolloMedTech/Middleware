@@ -117,14 +117,33 @@ func (manager *DBManager) Close() error {
 }
 
 // AB - SERVER STORER
+func (db *DBManager) Load(user, password string) (config.ApolloUser, error) {
 
-func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
-
-	var request LoginRequest
-
-	if err := ctx.ShouldBind(&request); err != nil {
+	// Use ConnectDB to establish a database connection
+	dbManager, err := NewDBManager()
+	if err != nil {
 		return nil, err
 	}
+
+	defer dbManager.DB.Close()
+
+	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1 and password_hash = $2;", user, password)
+
+	var user config.ApolloUser
+	// Scan the retrieved row into the User struct
+	err = row.Scan(&user.ID, &user.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, authboss.ErrUserNotFound // User not found
+		}
+		return nil, err // Other error while scanning
+	}
+
+	// Return the user object retrieved from the database
+	return &user, nil
+}
+
+func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
 
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
