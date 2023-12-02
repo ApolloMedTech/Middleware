@@ -23,7 +23,7 @@ func SetupLogger(cfg config.LogConfig) {
 		TimestampFormat:        "2006-01-02 15:04:05",
 		DisableColors:          false,
 		QuoteEmptyFields:       true,
-		DisableLevelTruncation: true,
+		DisableLevelTruncation: false,
 		PadLevelText:           true,
 		FullTimestamp:          false,
 		// Customizing delimiters
