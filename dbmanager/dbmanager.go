@@ -131,7 +131,7 @@ func (db *DBManager) Login(email, password string) (int, error) {
 
 	var user config.ApolloUser
 	// Scan the retrieved row into the User struct
-	err = row.Scan(&user.ID, &user.Email)
+	err = row.Scan(&user.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return 0, authboss.ErrUserNotFound // User not found
