@@ -3,6 +3,7 @@ package http_template
 
 import (
 	"github.com/ApolloMedTech/Middleware/alertManager"
+	"github.com/ApolloMedTech/Middleware/localization"
 	"github.com/flosch/pongo2/v6"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -47,6 +48,11 @@ func NewRender(c *gin.Context, templateFile string, data pongo2.Context, localiz
 	if len(alerts) > 0 {
 		logrus.Debug("Alert: ", alerts[0])
 		data["alert"] = alerts[0]
+	}
+	baseStrings := localization.LocalizePrefixStrings(c, "base_")
+
+	for k, v := range baseStrings {
+		localizationStrings[k] = v
 	}
 
 	data["localizedStrings"] = localizationStrings
