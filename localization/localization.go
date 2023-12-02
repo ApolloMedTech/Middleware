@@ -1,5 +1,7 @@
 package localization
 
+//TODO change the package to localManager
+
 import (
 	"encoding/json"
 	"github.com/ApolloMedTech/Middleware/config"
