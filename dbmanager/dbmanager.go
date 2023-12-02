@@ -143,31 +143,31 @@ func (db *DBManager) Login(email, password string) (int, error) {
 	return user.ID, nil
 }
 
-// func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
+func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
 
-// 	// Use ConnectDB to establish a database connection
-// 	dbManager, err := NewDBManager()
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	// Use ConnectDB to establish a database connection
+	dbManager, err := NewDBManager()
+	if err != nil {
+		return nil, err
+	}
 
-// 	defer dbManager.DB.Close()
+	defer dbManager.DB.Close()
 
-// 	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1 and password_hash = $2;", key, request.Password)
+	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1;", key)
 
-// 	var user config.ApolloUser
-// 	// Scan the retrieved row into the User struct
-// 	err = row.Scan(&user.ID, &user.Email)
-// 	if err != nil {
-// 		if err == sql.ErrNoRows {
-// 			return nil, authboss.ErrUserNotFound // User not found
-// 		}
-// 		return nil, err // Other error while scanning
-// 	}
+	var user config.ApolloUser
+	// Scan the retrieved row into the User struct
+	err = row.Scan(&user.ID, &user.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, authboss.ErrUserNotFound // User not found
+		}
+		return nil, err // Other error while scanning
+	}
 
-// 	// Return the user object retrieved from the database
-// 	return &user, nil
-// }
+	// Return the user object retrieved from the database
+	return &user, nil
+}
 
 func (*DBManager) Save(ctx context.Context, user authboss.User) error {
 
@@ -215,4 +215,16 @@ func (*DBManager) LoadByRecoverSelector(ctx context.Context, selector string) (a
 
 	// Return the user object retrieved from the database
 	return &user, nil
+}
+
+// CreateSession is a function that creates a new session for a given user.
+// It takes a user ID as an argument.
+func CreateSession(userid int) {
+
+}
+
+// EndSession is a function that ends the session for a given user.
+// It takes a user ID as an argument.
+func EndSession(userid int) {
+
 }
