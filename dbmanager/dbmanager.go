@@ -118,7 +118,7 @@ func (manager *DBManager) Close() error {
 
 // AB - SERVER STORER
 
-func (db *DBManager) Load(ctx context.Context, key string) (authboss.AuthableUser, error) {
+func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
 	if err != nil {
