@@ -117,8 +117,34 @@ func (manager *DBManager) Close() error {
 }
 
 // AB - SERVER STORER
+func (db *DBManager) Login(email, password string) (int, error) {
 
-func (db *DBManager) Load(ctx context.Context, key string) (authboss.AuthableUser, error) {
+	// Use ConnectDB to establish a database connection
+	dbManager, err := NewDBManager()
+	if err != nil {
+		return 0, err
+	}
+
+	defer dbManager.DB.Close()
+
+	row := dbManager.DB.QueryRow("SELECT user_id FROM users WHERE email = $1 and password_hash = $2;", email, password)
+
+	var user config.ApolloUser
+	// Scan the retrieved row into the User struct
+	err = row.Scan(&user.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, authboss.ErrUserNotFound // User not found
+		}
+		return 0, err // Other error while scanning
+	}
+
+	// Return the user object retrieved from the database
+	return user.ID, nil
+}
+
+func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
+
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
 	if err != nil {
@@ -127,8 +153,7 @@ func (db *DBManager) Load(ctx context.Context, key string) (authboss.AuthableUse
 
 	defer dbManager.DB.Close()
 
-	// Prepare SQL query to fetch user data based on username
-	row := dbManager.DB.QueryRow("SELECT id, email FROM users WHERE username = $1;", key)
+	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1;", key)
 
 	var user config.ApolloUser
 	// Scan the retrieved row into the User struct
@@ -190,4 +215,16 @@ func (*DBManager) LoadByRecoverSelector(ctx context.Context, selector string) (a
 
 	// Return the user object retrieved from the database
 	return &user, nil
+}
+
+// CreateSession is a function that creates a new session for a given user.
+// It takes a user ID as an argument.
+func CreateSession(userid int) {
+
+}
+
+// EndSession is a function that ends the session for a given user.
+// It takes a user ID as an argument.
+func EndSession(userid int) {
+
 }

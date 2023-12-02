@@ -43,7 +43,7 @@ func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value
 	}
 
 	// Store the user ID in the session, assuming it's stored as "user_id"
-	session.Values["user_id"] = value
+	session.Values[key] = value
 
 	// Save the session
 	if err := session.Save(r, w); err != nil {
