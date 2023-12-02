@@ -14,6 +14,7 @@ func AlertMiddleware(store sessions.Store) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		alerts, err := getAlertsFromSession(c)
 		if err != nil {
+			logrus.Error("Failed to get alerts from session: ", err)
 			// handle error
 		}
 		c.Set(SessionKey, alerts)
