@@ -26,9 +26,9 @@ func InitLocalization(config config.LocalizationConfig) {
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 	trie = newTrie() // Initialize the trie
-	
+
 	// Load message files.
-	err := newLoadLocaleFiles(config.LocalesPath)
+	err := LoadLocaleFiles(config.LocalesPath)
 	if err != nil {
 		logrus.Error("Error loading locale files: ", err)
 		return
@@ -47,11 +47,49 @@ func LoadLocaleFiles(path string) error {
 		if filepath.Ext(f.Name()) == ".json" {
 			logrus.Debug("Loading locale file: ", f.Name())
 			fullPath := filepath.Join(path, f.Name())
-			bundle.MustLoadMessageFile(fullPath)
+			file, err := os.Open(fullPath)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+
+			var messages []Message
+			if err := json.NewDecoder(file).Decode(&messages); err != nil {
+				return err
+			}
+
+			for _, message := range messages {
+				// Insert the message ID into the trie
+				trie.insert(message.ID)
+
+				// Add the message to the bundle
+				bundle.AddMessages(language.English, &i18n.Message{
+					ID:    message.ID,
+					Other: message.Other,
+				})
+			}
 		}
 	}
 	return nil
 }
+
+/*
+func LoadLocaleFiles(path string) error {
+	files, err := os.ReadDir(path)
+	if err != nil {
+		logrus.Debug("Error reading locale files: ", err)
+		return err
+	}
+
+	for _, f := range files {
+		if filepath.Ext(f.Name()) == ".json" {
+			logrus.Debug("Loading locale file: ", f.Name())
+			fullPath := filepath.Join(path, f.Name())
+			bundle.MustLoadMessageFile(fullPath)
+		}
+	}
+	return nil
+}*/
 
 // LocalizationMiddleware detects the user's language and initializes a localizer.
 func LocalizationMiddleware() gin.HandlerFunc {
@@ -128,87 +166,4 @@ func LocalizePrefixStrings(c *gin.Context, partialID string) map[string]string {
 		localizedStrings[id] = localizer.MustLocalize(&i18n.LocalizeConfig{MessageID: id})
 	}
 	return localizedStrings
-}
-
-type TrieNode struct {
-	children map[rune]*TrieNode
-	endOfKey bool
-}
-
-type Trie struct {
-	root *TrieNode
-}
-
-func newTrie() *Trie {
-	return &Trie{root: &TrieNode{children: make(map[rune]*TrieNode)}}
-}
-
-func (t *Trie) insert(key string) {
-	node := t.root
-	for _, char := range key {
-		if _, ok := node.children[char]; !ok {
-			node.children[char] = &TrieNode{children: make(map[rune]*TrieNode)}
-		}
-		node = node.children[char]
-	}
-	node.endOfKey = true
-}
-
-func (t *Trie) searchPrefix(prefix string) []string {
-	node := t.root
-	for _, char := range prefix {
-		if _, ok := node.children[char]; !ok {
-			return nil
-		}
-		node = node.children[char]
-	}
-	var results []string
-	t.collectAllKeys(node, prefix, &results)
-	return results
-}
-
-func (t *Trie) collectAllKeys(node *TrieNode, prefix string, results *[]string) {
-	if node.endOfKey {
-		*results = append(*results, prefix)
-	}
-	for char, childNode := range node.children {
-		t.collectAllKeys(childNode, prefix+string(char), results)
-	}
-}
-
-func newLoadLocaleFiles(path string) error {
-	files, err := os.ReadDir(path)
-	if err != nil {
-		logrus.Debug("Error reading locale files: ", err)
-		return err
-	}
-
-	for _, f := range files {
-		if filepath.Ext(f.Name()) == ".json" {
-			logrus.Debug("Loading locale file: ", f.Name())
-			fullPath := filepath.Join(path, f.Name())
-			file, err := os.Open(fullPath)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-
-			var messages []Message
-			if err := json.NewDecoder(file).Decode(&messages); err != nil {
-				return err
-			}
-
-			for _, message := range messages {
-				// Insert the message ID into the trie
-				trie.insert(message.ID)
-
-				// Add the message to the bundle
-				bundle.AddMessages(language.English, &i18n.Message{
-					ID:    message.ID,
-					Other: message.Other,
-				})
-			}
-		}
-	}
-	return nil
 }
