@@ -119,6 +119,13 @@ func (manager *DBManager) Close() error {
 // AB - SERVER STORER
 
 func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
+
+	var request LoginRequest
+
+	if err := ctx.ShouldBind(&request); err != nil {
+		return nil, err
+	}
+
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
 	if err != nil {
@@ -127,7 +134,7 @@ func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error
 
 	defer dbManager.DB.Close()
 
-	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1;", key)
+	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1 and password_hash = $2;", key, request.Password)
 
 	var user config.ApolloUser
 	// Scan the retrieved row into the User struct

@@ -51,6 +51,11 @@ type ServerConfig struct {
 	Port string `yaml:"port"`
 }
 
+type LoginRequest struct {
+	Email    string `JSON:"email"`
+	Password string `JSON:"password"`
+}
+
 type LogConfig struct {
 	LogLevel    string `yaml:"logLevel"`
 	LogPath     string `yaml:"logPath"`
