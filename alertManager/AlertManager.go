@@ -69,11 +69,15 @@ func getAlertsFromSession(c *gin.Context) ([]Alert, error) {
 		return nil, fmt.Errorf("failed to assert alerts from session")
 	}
 
+	return alerts, nil
+}
+
+// ClearAlerts This could be a function called after rendering the alerts in the template/view
+func ClearAlerts(c *gin.Context) {
+	session := sessions.Default(c)
 	session.Delete(SessionKey)
 	err := session.Save()
 	if err != nil {
 		logrus.Error("Failed to delete alerts from session: ", err)
-		return nil, fmt.Errorf("failed to delete alerts from session")
 	}
-	return alerts, nil
 }
