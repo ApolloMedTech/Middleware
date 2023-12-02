@@ -117,7 +117,7 @@ func (manager *DBManager) Close() error {
 }
 
 // AB - SERVER STORER
-func (db *DBManager) Load(email, password string) (int, error) {
+func (db *DBManager) Login(email, password string) (int, error) {
 
 	// Use ConnectDB to establish a database connection
 	dbManager, err := NewDBManager()
