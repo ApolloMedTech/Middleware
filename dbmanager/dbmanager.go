@@ -128,7 +128,7 @@ func (db *DBManager) Load(ctx context.Context, key string) (authboss.AuthableUse
 	defer dbManager.DB.Close()
 
 	// Prepare SQL query to fetch user data based on username
-	row := dbManager.DB.QueryRow("SELECT id, email FROM users WHERE username = $1;", key)
+	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1;", key)
 
 	var user config.ApolloUser
 	// Scan the retrieved row into the User struct
