@@ -1,6 +1,7 @@
 package sessionmanager
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -124,6 +125,18 @@ func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value
 	if err := session.Save(r, w); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (m *MySessionStore) SaveObject(w http.ResponseWriter, r *http.Request, key string, value interface{}) error {
+
+	jsonValue, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("failed to marshal value to JSON: %v", err)
+	}
+
+	m.Save(w, r, key, string(jsonValue))
 
 	return nil
 }
