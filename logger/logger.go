@@ -1,11 +1,13 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/ApolloMedTech/Middleware/config"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
+	"runtime"
 )
 
 func SetupLogger(cfg config.LogConfig) {
@@ -21,7 +23,7 @@ func SetupLogger(cfg config.LogConfig) {
 		TimestampFormat:        "2006-01-02 15:04:05",
 		DisableColors:          false,
 		QuoteEmptyFields:       true,
-		DisableLevelTruncation: true,
+		DisableLevelTruncation: false,
 		PadLevelText:           true,
 		FullTimestamp:          false,
 		// Customizing delimiters
@@ -30,6 +32,9 @@ func SetupLogger(cfg config.LogConfig) {
 			logrus.FieldKeyLevel: "severity",
 			logrus.FieldKeyMsg:   "message",
 			logrus.FieldKeyFunc:  "caller",
+		},
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			return fmt.Sprintf("%s:%d", f.File, f.Line), ""
 		},
 	})
 
