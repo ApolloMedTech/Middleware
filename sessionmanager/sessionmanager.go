@@ -82,6 +82,25 @@ func (m *MySessionStore) IsSessionStilValid(sessionID uuid.UUID) (bool, error) {
 	return true, nil
 }
 
+// Save saves the session data for a given session token.
+func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value string) error {
+	session, err := m.store.Get(r, key)
+	if err != nil {
+		return err
+	}
+
+	// Store the user ID in the session, assuming it's stored as "user_id"
+	session.Values[key] = value
+	session.Options.MaxAge = 2 * 60 * 60
+
+	// Save the session
+	if err := session.Save(r, w); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MySessionStore) Load(w http.ResponseWriter, r *http.Request, key string) (string, error) {
 	session, err := m.store.Get(r, key)
 	if err != nil {
@@ -95,24 +114,6 @@ func (m *MySessionStore) Load(w http.ResponseWriter, r *http.Request, key string
 	}
 
 	return userID, nil
-}
-
-// Save saves the session data for a given session token.
-func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value string) error {
-	session, err := m.store.Get(r, key)
-	if err != nil {
-		return err
-	}
-
-	// Store the user ID in the session, assuming it's stored as "user_id"
-	session.Values[key] = value
-
-	// Save the session
-	if err := session.Save(r, w); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // ReadState implements authboss.ClientStateReadWriter.
@@ -149,6 +150,7 @@ func (s SessionState) Get(key string) (string, bool) {
 
 	return value, ok
 }
+
 func (s MySessionStore) WriteState(w http.ResponseWriter, state authboss.ClientState, ev []authboss.ClientStateEvent) error {
 	ses := state.(*SessionState)
 
