@@ -216,15 +216,3 @@ func (*DBManager) LoadByRecoverSelector(ctx context.Context, selector string) (a
 	// Return the user object retrieved from the database
 	return &user, nil
 }
-
-// CreateSession is a function that creates a new session for a given user.
-// It takes a user ID as an argument.
-func CreateSession(userid int) {
-
-}
-
-// EndSession is a function that ends the session for a given user.
-// It takes a user ID as an argument.
-func EndSession(userid int) {
-
-}

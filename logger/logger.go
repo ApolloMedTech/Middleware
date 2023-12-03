@@ -2,12 +2,13 @@ package logger
 
 import (
 	"fmt"
-	"github.com/ApolloMedTech/Middleware/config"
-	"github.com/sirupsen/logrus"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
 	"runtime"
+
+	"github.com/ApolloMedTech/Middleware/config"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func SetupLogger(cfg config.LogConfig) {

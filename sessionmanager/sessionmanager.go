@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/ApolloMedTech/Middleware/dbmanager"
+	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	authboss "github.com/volatiletech/authboss/v3"
 )
@@ -18,6 +21,46 @@ type MySessionStore struct {
 // holds the request's session values for the duration of the request.
 type SessionState struct {
 	session *sessions.Session
+}
+
+func (m *MySessionStore) CreateSession(userID int) (uuid.UUID, error) {
+
+	// Use ConnectDB to establish a database connection
+	dbManager, err := dbmanager.NewDBManager()
+	if err != nil {
+		return uuid.Nil, err
+	}
+	defer dbManager.DB.Close()
+
+	token := uuid.New()
+
+	// Prepare SQL query for user insertion
+	_, err = dbManager.DB.Exec("INSERT INTO session (session_id, user_id, start_date, expiration_date) VALUES ($1, $2, $3, $4);", token, userID, time.Now(),
+		time.Now().AddDate(0, 0, 1)) // fica por agora com um dia de sessão.
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	// If the insertion was successful, return nil indicating no error
+	return token, nil
+}
+
+func (m *MySessionStore) IsSessionStilValid(sessionID uuid.UUID) (bool, error) {
+	// Use ConnectDB to establish a database connection
+	dbManager, err := dbmanager.NewDBManager()
+	if err != nil {
+		return false, err
+	}
+	defer dbManager.DB.Close()
+
+	// Prepare SQL query for user insertion
+	_, err = dbManager.DB.Exec("select session_id from session where expiration_date <=  CURRENT_TIMESTAMP() and active = 1")
+	if err != nil {
+		return false, err
+	}
+
+	// If the insertion was successful, return nil indicating no error
+	return true, nil
 }
 
 func (m *MySessionStore) Load(w http.ResponseWriter, r *http.Request, key string) (string, error) {
