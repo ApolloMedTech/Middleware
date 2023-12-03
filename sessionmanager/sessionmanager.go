@@ -89,7 +89,7 @@ func (m *MySessionStore) Load(w http.ResponseWriter, r *http.Request, key string
 	}
 
 	// Extract the user ID from the session, assuming it's stored as "user_id"
-	userID, ok := session.Values["user_id"].(string)
+	userID, ok := session.Values[key].(string)
 	if !ok {
 		return "", fmt.Errorf("user ID not found in session")
 	}
