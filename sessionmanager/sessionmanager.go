@@ -45,6 +45,25 @@ func (m *MySessionStore) CreateSession(userID int) (uuid.UUID, error) {
 	return token, nil
 }
 
+func (m *MySessionStore) InvalidateSession(sessionID uuid.UUID) error {
+
+	// Use ConnectDB to establish a database connection
+	dbManager, err := dbmanager.NewDBManager()
+	if err != nil {
+		return err
+	}
+	defer dbManager.DB.Close()
+
+	// Prepare SQL query for user insertion
+	_, err = dbManager.DB.Exec("UPDATE session SET active = 0 where session_id = $1;", sessionID) // fica por agora com um dia de sessão.
+	if err != nil {
+		return err
+	}
+
+	// If the insertion was successful, return nil indicating no error
+	return nil
+}
+
 func (m *MySessionStore) IsSessionStilValid(sessionID uuid.UUID) (bool, error) {
 	// Use ConnectDB to establish a database connection
 	dbManager, err := dbmanager.NewDBManager()
@@ -172,6 +191,6 @@ func contains(list []string, value string) bool {
 // NewMySessionStore creates a new instance of MySessionStore.
 func NewMySessionStore() *MySessionStore {
 	return &MySessionStore{
-		store: sessions.NewCookieStore([]byte("your-secret-key")),
+		store: sessions.NewCookieStore([]byte(uuid.New().String())),
 	}
 }
