@@ -1,4 +1,4 @@
-package requestmanager
+package requestManager
 
 import (
 	"bytes"
