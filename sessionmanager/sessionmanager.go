@@ -75,9 +75,7 @@ func (m *MySessionStore) InvalidateSession(sessionID uuid.UUID) error {
 
 func (m *MySessionStore) IsAuthenticated(w http.ResponseWriter, r *http.Request) bool {
 
-	sm := NewMySessionStore()
-
-	ssk, err := sm.Load(w, r, "Session")
+	ssk, err := m.Load(w, r, "Session")
 
 	if err != nil {
 		logrus.Errorf("Error making request to microservice: %v", err)
