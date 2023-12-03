@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/ApolloMedTech/Middleware/dbmanager"
-	"github.com/ApolloMedTech/Middleware/sessionmanager"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
@@ -75,7 +74,7 @@ func (m *MySessionStore) InvalidateSession(sessionID uuid.UUID) error {
 
 func (m *MySessionStore) IsAuthenticated(w http.ResponseWriter, r *http.Request) bool {
 
-	sm := sessionmanager.NewMySessionStore()
+	sm := NewMySessionStore()
 
 	ssk, err := sm.Load(w, r, "Session")
 
