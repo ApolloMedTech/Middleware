@@ -23,6 +23,13 @@ type SessionState struct {
 	session *sessions.Session
 }
 
+// NewMySessionStore creates a new instance of MySessionStore.
+func NewMySessionStore() *MySessionStore {
+	return &MySessionStore{
+		store: sessions.NewCookieStore([]byte("6ba7b810-9dad-11d1-80b4-00c04fd430c8")),
+	}
+}
+
 func (m *MySessionStore) CreateSession(userID int) (uuid.UUID, error) {
 
 	// Use ConnectDB to establish a database connection
@@ -188,11 +195,4 @@ func contains(list []string, value string) bool {
 		}
 	}
 	return false
-}
-
-// NewMySessionStore creates a new instance of MySessionStore.
-func NewMySessionStore() *MySessionStore {
-	return &MySessionStore{
-		store: sessions.NewCookieStore([]byte(uuid.New().String())),
-	}
 }
