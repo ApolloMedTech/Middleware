@@ -127,6 +127,19 @@ func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value
 	return nil
 }
 
+func (m *MySessionStore) DestroySession(w http.ResponseWriter, r *http.Request) error {
+	session, err := m.store.Get(r, "Session")
+	if err != nil {
+		return err
+	}
+
+	// Delete the session by setting its MaxAge to a negative value
+	session.Options.MaxAge = -1
+	err = session.Save(r, w)
+
+	return err
+}
+
 func (m *MySessionStore) SaveObject(w http.ResponseWriter, r *http.Request, key string, value interface{}) error {
 
 	jsonValue, err := json.Marshal(value)
