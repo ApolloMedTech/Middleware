@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/ApolloMedTech/Middleware/dbmanager"
+	"github.com/ApolloMedTech/Middleware/sessionmanager"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
+	"github.com/sirupsen/logrus"
 	authboss "github.com/volatiletech/authboss/v3"
 )
 
@@ -71,23 +73,42 @@ func (m *MySessionStore) InvalidateSession(sessionID uuid.UUID) error {
 	return nil
 }
 
-func (m *MySessionStore) IsSessionStilValid(sessionID uuid.UUID) (bool, error) {
-	// Use ConnectDB to establish a database connection
-	dbManager, err := dbmanager.NewDBManager()
-	if err != nil {
-		return false, err
-	}
-	defer dbManager.DB.Close()
+func (m *MySessionStore) IsAuthenticated(w http.ResponseWriter, r *http.Request) bool {
 
-	// Prepare SQL query for user insertion
-	_, err = dbManager.DB.Exec("select session_id from session where expiration_date <=  CURRENT_TIMESTAMP() and active = 1")
+	sm := sessionmanager.NewMySessionStore()
+
+	ssk, err := sm.Load(w, r, "Session")
+
 	if err != nil {
-		return false, err
+		logrus.Errorf("Error making request to microservice: %v", err)
+		return false
 	}
 
-	// If the insertion was successful, return nil indicating no error
-	return true, nil
+	if ssk == "" {
+		logrus.Errorf("Sem sessão: %v", err)
+		return false
+	}
+
+	return true
 }
+
+// func (m *MySessionStore) IsSessionStilValid(sessionID uuid.UUID) (bool, error) {
+// 	// Use ConnectDB to establish a database connection
+// 	dbManager, err := dbmanager.NewDBManager()
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	defer dbManager.DB.Close()
+
+// 	// Prepare SQL query for user insertion
+// 	_, err = dbManager.DB.Exec("select session_id from session where expiration_date <=  CURRENT_TIMESTAMP() and active = 1")
+// 	if err != nil {
+// 		return false, err
+// 	}
+
+// 	// If the insertion was successful, return nil indicating no error
+// 	return true, nil
+// }
 
 // Save saves the session data for a given session token.
 func (m *MySessionStore) Save(w http.ResponseWriter, r *http.Request, key, value string) error {
