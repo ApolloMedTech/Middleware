@@ -1,5 +1,5 @@
-// Package http_template middleware/http_template/http_template.go
-package http_template
+// Package templateManager middleware/http_template/http_template.go
+package templateManager
 
 import (
 	"github.com/ApolloMedTech/Middleware/alertManager"
