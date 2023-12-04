@@ -18,6 +18,14 @@ func PerformPOSTHTTPRequest(c *gin.Context, url string, requestBody interface{},
 	return performHTTPRequest(c, "POST", url, requestBody, responseData)
 }
 
+func BindRequestData(c *gin.Context, requestData interface{}) error {
+	// Bind the request data
+	if err := c.ShouldBind(requestData); err != nil {
+		return err
+	}
+	return nil
+} 
+
 func performHTTPRequest(c *gin.Context, method, url string, requestBody interface{}, responseData interface{}) error {
 	var body io.Reader
 
