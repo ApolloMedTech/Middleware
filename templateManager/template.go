@@ -1,4 +1,4 @@
-// Package templateManager middleware/http_template/http_template.go
+// Package templateManager Package http_template middleware/http_template/http_template.go
 package templateManager
 
 import (
@@ -11,7 +11,7 @@ import (
 )
 
 // Render is a helper function to render a http_template with Pongo2
-func Render(c *gin.Context, templateFile string, data pongo2.Context, localizationStrings map[string]string) {
+func Render(c *gin.Context, templateFile string, data pongo2.Context, localizationStrings *map[string]string) {
 
 	// Check if an alert is provided and add it to the context
 	alerts := alertManager.GetAlerts(c)
@@ -20,11 +20,16 @@ func Render(c *gin.Context, templateFile string, data pongo2.Context, localizati
 		data["alert"] = alerts[0]
 	}
 
+	// If localizationStrings is nil, initialize it to an empty map
+	if localizationStrings == nil {
+		localizationStrings = &map[string]string{}
+	}
+
 	// Add the base strings to the localizationStrings map
 	baseStrings := localization.LocalizePrefixStrings(c, "base_")
 
 	for k, v := range baseStrings {
-		localizationStrings[k] = v
+		(*localizationStrings)[k] = v
 	}
 
 	data["localizedStrings"] = localizationStrings
