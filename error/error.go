@@ -2,13 +2,12 @@ package error
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/ApolloMedTech/Middleware/config"
-	"github.com/ApolloMedTech/Middleware/http_template"
+	"github.com/ApolloMedTech/Middleware/templateManager"
 	"github.com/flosch/pongo2/v6"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 func CustomErrorHandling(cfg config.TemplatesConfig) gin.HandlerFunc {
@@ -33,5 +32,5 @@ func CustomErrorHandling(cfg config.TemplatesConfig) gin.HandlerFunc {
 
 func errorHandler(c *gin.Context, statusCode int, message string, config config.TemplatesConfig) {
 	// Set the status code and render the template
-	http_template.Render(c, config.Path+"/error.html", pongo2.Context{"status": statusCode, "message": message})
+	templateManager.Render(c, config.Path+"/error.html", pongo2.Context{"status": statusCode, "message": message}, nil)
 }
