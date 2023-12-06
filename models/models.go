@@ -3,9 +3,11 @@ package models
 import "time"
 
 type MedicalRecord struct {
-	Details               string
-	DateOfRecord          time.Time // The original timestamp
-	DateOfRecordFormatted string    // The formatted date as a string
+	Description string `json:"description"`
+	CreatedDate int64  `json:"createDate"`
+	Date        int64  `json:"date"`
+	EntityName  string `json:"entityName"`
+	RecordType  string `json:"type"`
 }
 
 type AccessControlRecord struct {
