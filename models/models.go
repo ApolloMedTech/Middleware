@@ -12,4 +12,5 @@ type AccessControlRecord struct {
 	PersonnelName      string    // The name of the medical personnel who has access
 	StartDate          time.Time // The original timestamp
 	StartDateFormatted string    // The formatted date as a string
+	AcessStatus        string    // The access status
 }
