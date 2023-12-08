@@ -30,7 +30,7 @@ func ValidateNumeroUtente(numeroUtente string) error {
 
 // ValidateDate checks if the date string is valid based on specific rules.
 func ValidateDate(date string) error {
-	dateformat := "02/01/2006"
+	dateformat := "2006-01-02"
 	//check if date is empty
 	if date == "" {
 		logrus.Debug("date is empty " + date)
