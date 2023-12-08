@@ -15,4 +15,5 @@ type AccessControlRecord struct {
 	StartDate          time.Time // The original timestamp
 	StartDateFormatted string    // The formatted date as a string
 	AccessStatus       string    // The access status
+	AccessID           string    // The access ID
 }
