@@ -63,7 +63,8 @@ func ValidateDate(date string) error {
 	logrus.Debug(month)
 	logrus.Debug(year)
 	// Calculate the last day of the month
-	lastDayOfMonth := time.Date(year, month+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	// Calculate the last day of the month
+	lastDayOfMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.UTC).Add(-24 * time.Hour).Day()
 	logrus.Debug(lastDayOfMonth)
 	// Check if the day is valid for the chosen month
 	if day >= 1 && day <= lastDayOfMonth {
