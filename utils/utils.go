@@ -41,6 +41,7 @@ func ValidateDate(date string) error {
 	parsedTime, err := time.Parse(dateformat, date)
 	if err != nil {
 		logrus.Debug("date is in correct format " + date + " parsedTime " + parsedTime.GoString())
+		logrus.Error(err)
 		return errors.New("Date is not in correct format")
 	}
 
