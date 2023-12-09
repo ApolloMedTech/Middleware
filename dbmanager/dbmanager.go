@@ -1,14 +1,12 @@
 package dbmanager
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 
 	"github.com/ApolloMedTech/Middleware/config"
 	_ "github.com/lib/pq" // PostgresSQL driver
 	"github.com/sirupsen/logrus"
-	authboss "github.com/volatiletech/authboss/v3"
 )
 
 // DBManager holds the database connection pool.
@@ -116,103 +114,75 @@ func (manager *DBManager) Close() error {
 	return nil
 }
 
-// AB - SERVER STORER
-func (db *DBManager) Login(email, password string) (int, error) {
+// func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
 
-	// Use ConnectDB to establish a database connection
-	dbManager, err := NewDBManager()
-	if err != nil {
-		return 0, err
-	}
+// 	// Use ConnectDB to establish a database connection
+// 	dbManager, err := NewDBManager()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	defer dbManager.DB.Close()
+// 	defer dbManager.DB.Close()
 
-	row := dbManager.DB.QueryRow("SELECT user_id FROM users WHERE email = $1 and password_hash = $2;", email, password)
+// 	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1;", key)
 
-	var user config.ApolloUser
-	// Scan the retrieved row into the User struct
-	err = row.Scan(&user.ID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, authboss.ErrUserNotFound // User not found
-		}
-		return 0, err // Other error while scanning
-	}
+// 	var user config.ApolloUser
+// 	// Scan the retrieved row into the User struct
+// 	err = row.Scan(&user.ID, &user.Email)
+// 	if err != nil {
+// 		if err == sql.ErrNoRows {
+// 			return nil, authboss.ErrUserNotFound // User not found
+// 		}
+// 		return nil, err // Other error while scanning
+// 	}
 
-	// Return the user object retrieved from the database
-	return user.ID, nil
-}
+// 	// Return the user object retrieved from the database
+// 	return &user, nil
+// }
 
-func (db *DBManager) Load(ctx context.Context, key string) (authboss.User, error) {
+// func (*DBManager) Save(ctx context.Context, user authboss.User) error {
 
-	// Use ConnectDB to establish a database connection
-	dbManager, err := NewDBManager()
-	if err != nil {
-		return nil, err
-	}
+// 	// Use ConnectDB to establish a database connection
+// 	dbManager, err := NewDBManager()
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer dbManager.DB.Close()
 
-	defer dbManager.DB.Close()
+// 	// Prepare SQL query for user insertion
+// 	_, err = dbManager.DB.Exec("INSERT INTO users (email, password_hash) VALUES ($1, $2);",
+// 		user.(*config.ApolloUser).Email, user.(*config.ApolloUser).Password)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	row := dbManager.DB.QueryRow("SELECT user_id, email FROM users WHERE email = $1;", key)
+// 	// If the insertion was successful, return nil indicating no error
+// 	return nil
+// }
 
-	var user config.ApolloUser
-	// Scan the retrieved row into the User struct
-	err = row.Scan(&user.ID, &user.Email)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, authboss.ErrUserNotFound // User not found
-		}
-		return nil, err // Other error while scanning
-	}
+// // AB - RECOVERING SERVER STORER
+// func (*DBManager) LoadByRecoverSelector(ctx context.Context, selector string) (authboss.RecoverableUser, error) {
+// 	// Use ConnectDB to establish a database connection
+// 	dbManager, err := NewDBManager()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	// Return the user object retrieved from the database
-	return &user, nil
-}
+// 	defer dbManager.DB.Close()
 
-func (*DBManager) Save(ctx context.Context, user authboss.User) error {
+// 	// Prepare SQL query to fetch user data based on selector
+// 	row := dbManager.DB.QueryRow("SELECT id, email, recoverselector, recoververifier, recoveryexpiry FROM users WHERE recoverselector = $1;", selector)
 
-	// Use ConnectDB to establish a database connection
-	dbManager, err := NewDBManager()
-	if err != nil {
-		return err
-	}
-	defer dbManager.DB.Close()
+// 	var user config.ApolloUser
+// 	// Scan the retrieved row into the User struct
+// 	err = row.Scan(&user.ID, &user.Email, &user.RecoverSelector, &user.RecoverVerifier, &user.RecoverExpiry)
+// 	if err != nil {
+// 		if err == sql.ErrNoRows {
+// 			return nil, authboss.ErrUserNotFound // User not found
+// 		}
+// 		return nil, err // Other error while scanning
+// 	}
 
-	// Prepare SQL query for user insertion
-	_, err = dbManager.DB.Exec("INSERT INTO users (email, password_hash) VALUES ($1, $2);",
-		user.(*config.ApolloUser).Email, user.(*config.ApolloUser).Password)
-	if err != nil {
-		return err
-	}
-
-	// If the insertion was successful, return nil indicating no error
-	return nil
-}
-
-// AB - RECOVERING SERVER STORER
-
-func (*DBManager) LoadByRecoverSelector(ctx context.Context, selector string) (authboss.RecoverableUser, error) {
-	// Use ConnectDB to establish a database connection
-	dbManager, err := NewDBManager()
-	if err != nil {
-		return nil, err
-	}
-
-	defer dbManager.DB.Close()
-
-	// Prepare SQL query to fetch user data based on selector
-	row := dbManager.DB.QueryRow("SELECT id, email, recoverselector, recoververifier, recoveryexpiry FROM users WHERE recoverselector = $1;", selector)
-
-	var user config.ApolloUser
-	// Scan the retrieved row into the User struct
-	err = row.Scan(&user.ID, &user.Email, &user.RecoverSelector, &user.RecoverVerifier, &user.RecoverExpiry)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, authboss.ErrUserNotFound // User not found
-		}
-		return nil, err // Other error while scanning
-	}
-
-	// Return the user object retrieved from the database
-	return &user, nil
-}
+// 	// Return the user object retrieved from the database
+// 	return &user, nil
+// }

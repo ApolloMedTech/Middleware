@@ -1,11 +1,5 @@
 package config
 
-import (
-	"time"
-
-	authboss "github.com/volatiletech/authboss/v3"
-)
-
 // Config armazena as configurações do aplicativo.
 type Config struct {
 	Assets       AssetsConfig       `yaml:"assets"`
@@ -70,67 +64,68 @@ type ApolloUser struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Password string `json:"password"`
+	UserType string `json:"userType"`
+	// Password string `json:"password"`
 	// needed for AuthBoss
-	PID             string    `json:"pid"`
-	RecoverSelector string    `json:"recoverselector"`
-	RecoverVerifier string    `json:"recoververifier"`
-	RecoverExpiry   time.Time `json:"recoveryexpiry"`
-	authboss.User
-	authboss.AuthableUser
-	authboss.RecoverableUser
+	// PID             string    `json:"pid"`
+	// RecoverSelector string    `json:"recoverselector"`
+	// RecoverVerifier string    `json:"recoververifier"`
+	// RecoverExpiry   time.Time `json:"recoveryexpiry"`
+	// authboss.User
+	// authboss.AuthableUser
+	// authboss.RecoverableUser
 }
 
 //  AB - AUTHBOSS USER
 
-func (u *ApolloUser) GetPID() string {
-	return u.PID
-}
+// // func (u *ApolloUser) GetPID() string {
+// // 	return u.PID
+// // }
 
-func (u *ApolloUser) PutPID(pid string) {
-	u.PID = pid
-}
+// // func (u *ApolloUser) PutPID(pid string) {
+// // 	u.PID = pid
+// // }
 
-// AB - AUTHABLE USER
+// // AB - AUTHABLE USER
 
-func (u *ApolloUser) GetPassword() (password string) {
-	return u.Password
-}
+// func (u *ApolloUser) GetPassword() (password string) {
+// 	return u.Password
+// }
 
-func (u *ApolloUser) PutPassword(password string) {
-	u.Password = password
-}
+// func (u *ApolloUser) PutPassword(password string) {
+// 	u.Password = password
+// }
 
-// AB - RECOVERABLE USER
+// // AB - RECOVERABLE USER
 
-func (u *ApolloUser) GetEmail() (email string) {
-	return u.Email
-}
+// func (u *ApolloUser) GetEmail() (email string) {
+// 	return u.Email
+// }
 
-func (u *ApolloUser) GetRecoverSelector() (selector string) {
-	return u.RecoverSelector
-}
+// func (u *ApolloUser) GetRecoverSelector() (selector string) {
+// 	return u.RecoverSelector
+// }
 
-func (u *ApolloUser) GetRecoverVerifier() (verifier string) {
-	return u.RecoverVerifier
-}
+// func (u *ApolloUser) GetRecoverVerifier() (verifier string) {
+// 	return u.RecoverVerifier
+// }
 
-func (u *ApolloUser) GetRecoverExpiry() (expiry time.Time) {
-	return u.RecoverExpiry
-}
+// func (u *ApolloUser) GetRecoverExpiry() (expiry time.Time) {
+// 	return u.RecoverExpiry
+// }
 
-func (u *ApolloUser) PutEmail(email string) {
-	u.Email = email
-}
+// func (u *ApolloUser) PutEmail(email string) {
+// 	u.Email = email
+// }
 
-func (u *ApolloUser) PutRecoverSelector(selector string) {
-	u.RecoverSelector = selector
-}
+// func (u *ApolloUser) PutRecoverSelector(selector string) {
+// 	u.RecoverSelector = selector
+// }
 
-func (u *ApolloUser) PutRecoverVerifier(verifier string) {
-	u.RecoverVerifier = verifier
-}
+// func (u *ApolloUser) PutRecoverVerifier(verifier string) {
+// 	u.RecoverVerifier = verifier
+// }
 
-func (u *ApolloUser) PutRecoverExpiry(expiry time.Time) {
-	u.RecoverExpiry = expiry
-}
+// func (u *ApolloUser) PutRecoverExpiry(expiry time.Time) {
+// 	u.RecoverExpiry = expiry
+// }
