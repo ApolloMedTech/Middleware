@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(email, password, userType string) (*config.ApolloUser, error) {
+func Login(email, password string) (*config.ApolloUser, error) {
 
 	dbManager, err := dbmanager.NewDBManager()
 	if err != nil {
@@ -18,7 +18,7 @@ func Login(email, password, userType string) (*config.ApolloUser, error) {
 
 	defer dbManager.DB.Close()
 
-	row := dbManager.DB.QueryRow("SELECT user_id, name, email, user_type FROM users WHERE email = $1 and password_hash = $2 and user_type = $3;", email, password, userType)
+	row := dbManager.DB.QueryRow("SELECT user_id, name, email, user_type FROM users WHERE email = $1 and password_hash = $2;", email, password)
 
 	var user config.ApolloUser
 
