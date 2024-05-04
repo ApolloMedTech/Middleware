@@ -19,7 +19,7 @@ func NewDBManager() (*DBManager, error) {
 	cfg := config.GetConfig().Database
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
 		cfg.User, cfg.Password, cfg.Name, cfg.Host, cfg.Port)
-
+	logrus.Debug("Conntection string: ", connStr)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		logrus.Errorf("Error opening database: %v", err)
